@@ -1,0 +1,115 @@
+﻿이름;위치;기간;피리어드;Rally;득점유형;Result;상대성공실점;실수 기술;Player;ColorTag
+1set;8710;8018;1. 피리어드;1set;공격;Successful Win;;;;Color3
+1set;27946;20903;1. 피리어드;1set;;Away Successful Lose;중간볼;;;Color3
+1set;74087;3600;1. 피리어드;1set;;Away Mistakes Win;;;;Color3
+1set;100107;8585;1. 피리어드;1set;;Away Mistakes Win;;;;Color3
+1set;126211;11151;1. 피리어드;1set;;Away Successful Lose;수비;;;Color3
+1set;159166;5384;1. 피리어드;1set;초구;Successful Win;;;;Color3
+1set;177568;8819;1. 피리어드;1set;;Away Successful Lose;수비;;;Color3
+1set;200206;2650;1. 피리어드;1set;;Away Successful Lose;초구;;;Color3
+1set;216241;23554;1. 피리어드;1set;;Away Successful Lose;수비;;;Color3
+1set;267833;5151;1. 피리어드;1set;;Away Successful Lose;공격;;;Color3
+1set;291435;1900;1. 피리어드;1set;;Away Mistakes Win;;;;Color3
+1set;310722;6434;1. 피리어드;1set;;Away Successful Lose;수비;;;Color3
+1set;335409;8452;1. 피리어드;1set;;Away Mistakes Win;;;;Color3
+1set;362646;5952;1. 피리어드;1set;초구;Successful Win;;;;Color3
+1set;385699;14769;1. 피리어드;1set;;Away Successful Lose;공격;;;Color3
+1set;421155;3401;1. 피리어드;1set;;Away Successful Lose;초구;;;Color3
+1set;442407;12186;1. 피리어드;1set;공격;Successful Win;;;;Color3
+1set;479847;15687;1. 피리어드;1set;;Away Successful Lose;수비;;;Color3
+1set;518369;22055;1. 피리어드;1set;공격;Successful Win;;;;Color3
+1set;567243;8885;1. 피리어드;1set;;Away Successful Lose;수비;;;Color3
+1set;646255;6501;1. 피리어드;1set;공격;Successful Win;;;;Color3
+1set;673208;2367;1. 피리어드;1set;;Away Successful Lose;초구;;;Color3
+1set;695528;3102;1. 피리어드;1set;;Mistake Lose;;Serve Receive;Home2;Color3
+1set;714999;3000;1. 피리어드;1set;;Away Successful Lose;초구;;;Color3
+1set;796744;12802;1. 피리어드;1set;;Away Successful Lose;중간볼;;;Color3
+1set;828965;9368;1. 피리어드;1set;;Away Successful Lose;수비;;;Color3
+1set;857735;7335;1. 피리어드;1set;중간볼;Successful Win;;;;Color3
+1set;889091;6818;1. 피리어드;1set;중간볼;Successful Win;;;;Color3
+1set;919679;5635;1. 피리어드;1set;초구;Successful Win;;;;Color3
+1set;941899;8468;1. 피리어드;1set;공격;Successful Win;;;;Color3
+1set;977554;5951;1. 피리어드;1set;;Away Successful Lose;초구;;;Color3
+1set;1000257;2901;1. 피리어드;1set;;Away Mistakes Win;;;;Color3
+1set;1023277;8652;1. 피리어드;1set;중간볼;Successful Win;;;;Color3
+1set;1075069;6234;1. 피리어드;1set;;Away Successful Lose;수비;;;Color3
+1set;1103706;7018;1. 피리어드;1set;공격;Successful Win;;;;Color3
+1set;1136261;13285;1. 피리어드;1set;;Away Mistakes Win;;;;Color3
+1set;1169332;5984;1. 피리어드;1set;초구;Successful Win;;;;Color3
+1set;1194003;6501;1. 피리어드;1set;;Away Mistakes Win;;;;Color3
+1set;1217206;5216;1. 피리어드;1set;;Away Mistakes Win;;;;Color3
+2set;1345425;16469;1. 피리어드;2set;;Away Mistakes Win;;;;Color3
+2set;1389398;9835;1. 피리어드;2set;중간볼;Successful Win;;;;Color3
+2set;1416186;8568;1. 피리어드;2set;;Away Mistakes Win;;;;Color3
+2set;1441889;7936;1. 피리어드;2set;공격;Successful Win;;;;Color3
+2set;1466210;6951;1. 피리어드;2set;;Away Successful Lose;중간볼;;;Color3
+2set;1491280;1684;1. 피리어드;2set;;Mistake Lose;;Serve Receive;Home2;Color3
+2set;1507483;9085;1. 피리어드;2set;공격;Successful Win;;;;Color3
+2set;1534487;11619;1. 피리어드;2set;;Away Successful Lose;수비;;;Color3
+2set;1566208;7252;1. 피리어드;2set;;Mistake Lose;;Short Drive;Home1;Color3
+2set;1596896;3551;1. 피리어드;2set;초구;Successful Win;;;;Color3
+2set;1614665;27887;1. 피리어드;2set;;Away Mistakes Win;;;;Color3
+2set;1668540;19153;1. 피리어드;2set;;Mistake Lose;;Smash;Home2;Color3
+2set;1718614;5351;1. 피리어드;2set;공격;Successful Win;;;;Color3
+2set;1763904;10135;1. 피리어드;2set;;Away Mistakes Win;;;;Color3
+2set;1803260;10852;1. 피리어드;2set;;Away Mistakes Win;;;;Color3
+2set;1832514;8751;1. 피리어드;2set;;Away Successful Lose;수비;;;Color3
+2set;1861419;6034;1. 피리어드;2set;;Away Successful Lose;수비;;;Color3
+2set;1885755;8618;1. 피리어드;2set;;Away Successful Lose;중간볼;;;Color3
+2set;1914793;2467;1. 피리어드;2set;;Mistake Lose;;Drive;Home1;Color3
+2set;1933996;19203;1. 피리어드;2set;;Away Successful Lose;수비;;;Color3
+2set;1979220;10319;1. 피리어드;2set;;Mistake Lose;;Push;Home1;Color3
+2set;2060548;16953;1. 피리어드;2set;수비;Successful Win;;;;Color3
+2set;2095353;6335;1. 피리어드;2set;;Away Successful Lose;수비;;;Color3
+2set;2122257;4335;1. 피리어드;2set;초구;Successful Win;;;;Color3
+2set;2142977;6584;1. 피리어드;2set;;Away Successful Lose;초구;;;Color3
+2set;2167631;5751;1. 피리어드;2set;공격;Successful Win;;;;Color3
+2set;2191234;11219;1. 피리어드;2set;;;;;;Color3
+2set;2258995;5684;1. 피리어드;2set;;Away Successful Lose;초구;;;Color3
+2set;2288465;4284;1. 피리어드;2set;;Away Successful Lose;초구;;;Color3
+2set;2310902;16452;1. 피리어드;2set;중간볼;Successful Win;;;;Color3
+2set;2348557;12569;1. 피리어드;2set;공격;Successful Win;;;;Color3
+2set;2383046;13236;1. 피리어드;2set;중간볼;Successful Win;;;;Color3
+2set;2418718;6001;1. 피리어드;2set;;Mistake Lose;;Serve;Home2;Color3
+2set;2442472;7067;1. 피리어드;2set;;Mistake Lose;;Block;Home1;Color3
+2set;2474760;5820;1. 피리어드;2set;초구;Successful Win;;;;Color3
+2set;2497030;10502;1. 피리어드;2set;;Mistake Lose;;Block;Home1;Color3
+2set;2532335;7685;1. 피리어드;2set;;Away Mistakes Win;;;;Color3
+2set;2562523;8152;1. 피리어드;2set;;Away Successful Lose;수비;;;Color3
+2set;2608946;3101;1. 피리어드;2set;;Mistake Lose;;Serve Receive;Home2;Color3
+3set;2747334;7418;1. 피리어드;3set;;Away Successful Lose;초구;;;Color3
+3set;2785956;9202;1. 피리어드;3set;;Away Successful Lose;수비;;;Color3
+3set;2813360;5167;1. 피리어드;3set;초구;Successful Win;;;;Color3
+3set;2839248;7369;1. 피리어드;3set;;Away Successful Lose;중간볼;;;Color3
+3set;2863318;4800;1. 피리어드;3set;;Mistake Lose;;ETC;Home1;Color3
+3set;3061830;14186;1. 피리어드;3set;;Away Successful Lose;중간볼;;;Color3
+3set;3103054;10985;1. 피리어드;3set;;Away Mistakes Win;;;;Color3
+3set;3135057;5668;1. 피리어드;3set;;Away Mistakes Win;;;;Color3
+3set;3155394;6185;1. 피리어드;3set;;Away Successful Lose;중간볼;;;Color3
+3set;3179764;5519;1. 피리어드;3set;초구;Successful Win;;;;Color3
+3set;3197851;6218;1. 피리어드;3set;;Away Successful Lose;초구;;;Color3
+3set;3221420;6168;1. 피리어드;3set;초구;Successful Win;;;;Color3
+3set;3292165;8418;1. 피리어드;3set;중간볼;Successful Win;;;;Color3
+3set;3317468;5735;1. 피리어드;3set;;Away Successful Lose;초구;;;Color3
+3set;3343255;9368;1. 피리어드;3set;;Away Mistakes Win;;;;Color3
+3set;3367410;17735;1. 피리어드;3set;;Away Successful Lose;중간볼;;;Color3
+3set;3411566;6668;1. 피리어드;3set;;Away Successful Lose;중간볼;;;Color3
+3set;3454755;11419;1. 피리어드;3set;;Away Successful Lose;수비;;;Color3
+3set;3539550;2752;1. 피리어드;3set;;Mistake Lose;;Serve Receive;Home1;Color3
+3set;3556637;5368;1. 피리어드;3set;;Away Successful Lose;초구;;;Color3
+3set;3582025;6434;1. 피리어드;3set;공격;Successful Win;;;;Color3
+3set;3608895;6385;1. 피리어드;3set;;Away Successful Lose;중간볼;;;Color3
+3set;3633665;11969;1. 피리어드;3set;공격;Successful Win;;;;Color3
+3set;3666153;6952;1. 피리어드;3set;;Away Mistakes Win;;;;Color3
+3set;3688340;11419;1. 피리어드;3set;중간볼;Successful Win;;;;Color3
+3set;3725779;11769;1. 피리어드;3set;;Away Mistakes Win;;;;Color3
+3set;3755601;7367;1. 피리어드;3set;;Away Successful Lose;초구;;;Color3
+3set;3783020;6268;1. 피리어드;3set;;Away Successful Lose;초구;;;Color3
+3set;3808391;8884;1. 피리어드;3set;공격;Successful Win;;;;Color3
+3set;3840413;6050;1. 피리어드;3set;;Away Successful Lose;초구;;;Color3
+3set;3863082;10586;1. 피리어드;3set;;Mistake Lose;;Smash;Home1;Color3
+3set;3895154;5034;1. 피리어드;3set;;Away Mistakes Win;;;;Color3
+3set;3915724;6901;1. 피리어드;3set;;Away Successful Lose;초구;;;Color3
+3set;3937444;13319;1. 피리어드;3set;;Away Successful Lose;중간볼;;;Color3
+3set;3966597;6035;1. 피리어드;3set;;Away Successful Lose;공격;;;Color3
+
