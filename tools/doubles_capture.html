@@ -282,8 +282,8 @@ function pcsv(t){
     // 실수기술 영→한 매핑 (ETC 없으면 판단미스 변환 안 함)
     const techMap={
       'Clear':'클리어','Smash':'스매시','Return':'리턴','Drop':'드롭',
-      'Hairpin':'헤어핀','Drive':'드라이브','Cut':'컷',
-      'Block':'블록',
+      'Hairpin':'헤어핀','Drive':'드라이브','Cut':'커트',
+      'Block':'블록(앞잡는것)',
       'Push':'푸시','cross':'크로스','Cross':'크로스',
       'S.Drive':'숏드라이브','Short Drive':'숏드라이브',
       'Serve':'서브','Receive':'리시브','Serve Receive':'서브리시브',
@@ -310,7 +310,7 @@ function ckclk(rows){
 const BLUE=['#1e3a5f','#1d4ed8','#2563eb','#60a5fa'];
 const RED=['#7f1d1d','#991b1b','#b91c1c','#dc2626','#ef4444','#f87171'];
 const SC_C=['공격','중간볼','초구','수비'],LC_C=['수비','중간볼','공격','초구'];
-const RM={'Away Mistakes Win':{c:'#1d4ed8',l:'상대실수 득점'},'Successful Win':{c:'#2563eb',l:'공격성공 득점'},'Away Successful Lose':{c:'#b91c1c',l:'상대공격 실점'},'Mistake Lose':{c:'#ef4444',l:'본인실수 실점'}};
+const RM={'Away Mistakes Win':{c:'#1d4ed8',l:'상대실수 득점'},'Successful Win':{c:'#2563eb',l:'성공 득점'},'Away Successful Lose':{c:'#b91c1c',l:'상대성공 실점'},'Mistake Lose':{c:'#ef4444',l:'본인실수 실점'}};
 const SETC={'1set':'#1d4ed8','2set':'#6d28d9','3set':'#b45309'};
 const CC=v=>v<=15?'#15803d':v<=22?'#b45309':'#b91c1c';
 const CB=v=>v<=15?'#dcfce7':v<=22?'#fef9c3':'#fee2e2';
@@ -338,7 +338,7 @@ function SW(n){
     if(t) t.className='tab'+(i===n?' on':'');
     if(c) c.style.display=i===n?'flex':'none';
   });
-  const hints={1:`📸 ${p1} 득점+실수 스크린샷`,2:`📸 ${p1} 25초 클락 스크린샷`,3:`📸 ${p2} 득점+실수 스크린샷`,4:`📸 ${p2} 25초 클락 스크린샷`};
+  const hints={1:`📸 ${p1} 득점+실수 스크린샷`,2:`📸 ${p1} 랠리시간 스크린샷`,3:`📸 ${p2} 득점+실수 스크린샷`,4:`📸 ${p2} 랠리시간 스크린샷`};
   document.getElementById('hint').textContent=hints[n]||'';
 }
 
@@ -372,7 +372,7 @@ function renderCard(key, c1idx, c2idx){
     document.getElementById('dp'+idx).textContent=pn;
     document.getElementById('di'+idx).textContent='vs '+op+' · '+dt;
     document.getElementById('ds'+idx).innerHTML=badgeHTML;
-    document.getElementById('dk'+idx).innerHTML=kpiHTML;
+    document.getElementById('dk'+idx).innerHTML=idx===c1idx?kpiHTML:'';
   });
 
   const scM={},lcM={};
@@ -409,11 +409,37 @@ function renderCard(key, c1idx, c2idx){
   hA+=`</div></div>`;
   document.getElementById('db'+c1idx).innerHTML=hA;
 
-  // ── 카드B: 25초 클락 (전체 한 장) ────────────────────────────
-  function tileHTML(rows){return rows.map(r=>{const v=r.c,sn=r['이름']||'',sc=SETC[sn]||'#64748b';return`<div style="width:28px;border-radius:4px;overflow:hidden;background:${CB(v)};border:1.5px solid ${CD(v)}"><div style="height:3px;background:${sc}"></div><div style="padding:2px 1px 3px;text-align:center"><div style="font-size:10px;font-weight:900;color:${CC(v)};line-height:1">${v.toFixed(0)}s</div><div style="font-size:6px;font-weight:800;color:#334155;margin-top:1px;background:rgba(255,255,255,0.9);border-radius:2px;padding:0 1px">${r.sh}-${r.sa}</div><div style="font-size:5px;font-weight:800;color:${sc};margin-top:1px">${sn}</div></div></div>`;}).join('');}
-  const legHTML=`<div style="display:flex;gap:9px;margin-top:8px;flex-wrap:wrap;font-size:9px">${[['#15803d','#dcfce7','~15초'],['#b45309','#fef9c3','15~22초'],['#b91c1c','#fee2e2','22초+']].map(([c,bg,l])=>`<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:${bg};border:2px solid ${c};border-radius:2px;display:inline-block"></span><span style="color:#475569;font-weight:700">${l}</span></span>`).join('')}${Object.entries(SETC).map(([s,c])=>`<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:4px;background:${c};border-radius:2px;display:inline-block"></span><span style="color:#475569;font-weight:700">${s}</span></span>`).join('')}</div>`;
-  const sumHTML=`<div style="display:flex;gap:5px;margin-bottom:9px">${[{l:'평균',v:ca>0?ca.toFixed(1)+'초':'-',c:CC(ca),bg:CB(ca)},{l:'25초 초과',v:co+'회',c:co>0?'#b91c1c':'#15803d',bg:co>0?'#fee2e2':'#dcfce7'},{l:'평균 랠리',v:fmt(avg),c:'#334155',bg:'#f1f5f9'}].map(k=>`<div style="flex:1;background:${k.bg};border:1px solid ${k.c}30;border-radius:9px;padding:8px 6px;text-align:center"><div style="font-size:9px;color:#64748b;font-weight:800;margin-bottom:3px">${k.l}</div><div style="font-size:19px;font-weight:900;color:${k.c};line-height:1">${k.v}</div></div>`).join('')}</div>`;
-  let hB=`<div class="s" style="background:#f8fafc;border:1px solid #e2e8f0;overflow:visible"><div class="stl" style="color:#334155">⏲ 25초 클락</div>${sumHTML}<div style="font-size:10px;color:#475569;font-weight:800;margin-bottom:6px">랠리별 · 세트 · 점수</div><div style="display:flex;flex-wrap:wrap;gap:2px">${tileHTML(ckR)}</div>${legHTML}</div>`;
+  // ── 카드B: 랠리 시간 타일 ────────────────────────────────────
+  const RBG=res=>W(res)?'#dbeafe':L(res)?'#fee2e2':'#f1f5f9';
+  const RTC=res=>W(res)?'#1d4ed8':L(res)?'#b91c1c':'#64748b';
+
+  const rallyData=(()=>{
+    let sh=0,sa=0,ps='';
+    return data.map(r=>{
+      const sn=r['이름']||'';
+      if(ps&&sn!==ps){sh=0;sa=0;}
+      ps=sn;
+      const sec=parseFloat(r['기간']||0)/1000;
+      if(W(r.Result))sh++;else if(L(r.Result))sa++;
+      return{sec,sn,sh,sa,res:r.Result};
+    }).filter(r=>r.sec>0);
+  })();
+  const winD=rallyData.filter(r=>W(r.res));
+  const loseD=rallyData.filter(r=>L(r.res));
+  const wAvg=winD.length?winD.reduce((s,r)=>s+r.sec,0)/winD.length:0;
+  const lAvg=loseD.length?loseD.reduce((s,r)=>s+r.sec,0)/loseD.length:0;
+  const tAvg=rallyData.length?rallyData.reduce((s,r)=>s+r.sec,0)/rallyData.length:0;
+
+  const rTileHTML=rallyData.map(r=>{
+    const v=r.sec,sn=r.sn,sc=SETC[sn]||'#64748b';
+    return`<div style="width:28px;border-radius:4px;overflow:hidden;background:${RBG(r.res)};border:1px solid #e2e8f0"><div style="height:3px;background:${sc}"></div><div style="padding:2px 1px 3px;text-align:center"><div style="font-size:10px;font-weight:900;color:${RTC(r.res)};line-height:1">${v.toFixed(0)}s</div><div style="font-size:6px;font-weight:800;color:#334155;margin-top:1px;background:rgba(255,255,255,0.85);border-radius:2px;padding:0 1px">${r.sh}-${r.sa}</div><div style="font-size:5px;font-weight:800;color:${sc};margin-top:1px">${sn}</div></div></div>`;
+  }).join('');
+
+  const rLegHTML=`<div style="display:flex;gap:9px;margin-top:8px;flex-wrap:wrap;font-size:9px">${[['#1d4ed8','#dbeafe','득점'],['#b91c1c','#fee2e2','실점']].map(([c,bg,l])=>`<span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:${bg};border:1px solid ${c};border-radius:2px;display:inline-block"></span><span style="color:#475569;font-weight:700">${l}</span></span>`).join('')}${Object.entries(SETC).map(([s,c])=>`<span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:4px;background:${c};border-radius:2px;display:inline-block"></span><span style="color:#475569;font-weight:700">${s}</span></span>`).join('')}</div>`;
+
+  const rSumHTML=`<div style="display:flex;gap:5px;margin-bottom:9px">${[{l:'전체 평균',v:tAvg.toFixed(1)+'초',c:'#334155',bg:'#f1f5f9'},{l:'득점 평균',v:wAvg.toFixed(1)+'초',c:'#1d4ed8',bg:'#dbeafe'},{l:'실점 평균',v:lAvg.toFixed(1)+'초',c:'#b91c1c',bg:'#fee2e2'}].map(k=>`<div style="flex:1;background:${k.bg};border:1px solid ${k.c}30;border-radius:9px;padding:8px 4px;text-align:center"><div style="font-size:7px;color:#64748b;font-weight:800;margin-bottom:3px">${k.l}</div><div style="font-size:16px;font-weight:900;color:${k.c};line-height:1">${k.v}</div></div>`).join('')}</div>`;
+
+  let hB=`<div class="s" style="background:#f8fafc;border:1px solid #e2e8f0;overflow:visible"><div class="stl" style="color:#334155">🏸 랠리 시간</div>${rSumHTML}<div style="font-size:10px;color:#475569;font-weight:800;margin-bottom:6px">랠리별 · 세트</div><div style="display:flex;flex-wrap:wrap;gap:2px">${rTileHTML}</div>${rLegHTML}</div>`;
   document.getElementById('db'+c2idx).innerHTML=hB;
 }
 
