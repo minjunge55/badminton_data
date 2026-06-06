@@ -188,7 +188,7 @@ const CSV=`이름;위치;기간;피리어드;Rally;Result;실수 기술;Zone;Col
 2set;2399313;10468;1. 피리어드;2set;Away Mistakes Win;;;Color2
 2set;2419015;12268;1. 피리어드;2set;Successful Win;;Zone 2;Color2`;
 
-function pcsv(t){const l=t.trim().split('\n').filter(Boolean);if(l.length<2)return[];const h=l[0].split(';').map(x=>x.trim());return l.slice(1).map(s=>{const v=s.split(';').map(x=>x.trim());const o={};h.forEach((k,i)=>o[k]=v[i]||'');if(o['실수 기술']==='ETC'||o['실수 기술']==='etc')o['실수 기술']='판단미스';return o;});}
+function pcsv(t){const l=t.trim().split('\n').filter(Boolean);if(l.length<2)return[];const h=l[0].split(';').map(x=>x.trim());const techMap={'Clear':'클리어','Smash':'스매시','Return':'리턴','Drop':'드롭','Hairpin':'헤어핀','Drive':'드라이브','Cut':'커트','Block':'블록(앞잡는것)','Push':'푸시','cross':'크로스','Cross':'크로스','S.Drive':'숏드라이브','Short Drive':'숏드라이브','Serve':'서브','Receive':'리시브','Serve Receive':'서브리시브','ETC':'판단미스','etc':'판단미스'};return l.slice(1).map(s=>{const v=s.split(';').map(x=>x.trim());const o={};h.forEach((k,i)=>o[k]=v[i]||'');if(o['실수 기술']&&techMap[o['실수 기술']])o['실수 기술']=techMap[o['실수 기술']];return o;});}
 const W=r=>r&&r.toLowerCase().includes('win');
 const L=r=>r&&r.toLowerCase().includes('lose');
 const fmt=ms=>{const s=Math.round(ms/1000);return s<60?s+'초':Math.floor(s/60)+'분'+(s%60)+'초';};
@@ -204,7 +204,7 @@ function ckclk(rows){
 }
 const pz=z=>{if(!z)return null;const m=z.match(/(\d+)/);return m?+m[1]:null;};
 const R2=['#7f1d1d','#991b1b','#b91c1c','#dc2626','#ef4444','#f87171'];
-const RM={'Away Mistakes Win':{c:'#1d4ed8',l:'상대실수 득점'},'Successful Win':{c:'#2563eb',l:'공격성공 득점'},'Away Successful Lose':{c:'#b91c1c',l:'상대공격 실점'},'Mistake Lose':{c:'#ef4444',l:'본인실수 실점'}};
+const RM={'Away Mistakes Win':{c:'#1d4ed8',l:'상대실수 득점'},'Successful Win':{c:'#2563eb',l:'성공 득점'},'Away Successful Lose':{c:'#b91c1c',l:'상대성공 실점'},'Mistake Lose':{c:'#ef4444',l:'본인실수 실점'}};
 const LAY=[[2,7,1],[6,8,5],[4,9,3]];
 const SC={'1set':'#1d4ed8','2set':'#6d28d9','3set':'#b45309'};
 const CC=v=>v<=15?'#15803d':v<=22?'#b45309':'#b91c1c';
@@ -343,7 +343,7 @@ function R(){
   ['ds','ds2','ds3'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=badgeHTML;});
 
   const kpiHTML=[{l:'득점',v:wins,c:'#1d4ed8',bg:'#eff6ff'},{l:'실점',v:loses,c:'#b91c1c',bg:'#fef2f2'},{l:'득점률',v:rate+'%',c:'#1e3a5f',bg:'#eff6ff'},{l:'평균랠리',v:fmt(avg),c:'#334155',bg:'#f8fafc'}].map(k=>`<div class="kc" style="background:${k.bg}"><div class="kl" style="color:${k.c}">${k.l}</div><div class="kv" style="color:${k.c}">${k.v}</div></div>`).join('');
-  ['dk','dk2','dk3'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=kpiHTML;});
+  ['dk','dk2','dk3'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=id==='dk'?kpiHTML:'';});
 
   const wz={},lz={};
   data.forEach(r=>{const z=pz(r['Zone']);if(!z)return;if(W(r.Result))wz[z]=(wz[z]||0)+1;if(L(r.Result))lz[z]=(lz[z]||0)+1;});
@@ -376,57 +376,61 @@ function R(){
   </div>`;
   document.getElementById('db1').innerHTML=h1;
 
-  // ── 카드2/3: 25초 클락 분할 ────────────────────────────────────
-  // 타일 공통 HTML 생성 함수
-  function tileHTML(rows) {
-    return rows.map(r=>{
-      const v=r.c,sn=r['이름']||'',sc=SC[sn]||'#64748b';
-      return `<div style="width:28px;border-radius:4px;overflow:hidden;background:${CB(v)};border:1.5px solid ${CD(v)}">
-        <div style="height:3px;background:${sc}"></div>
-        <div style="padding:2px 1px 3px;text-align:center">
-          <div style="font-size:10px;font-weight:900;color:${CC(v)};line-height:1">${v.toFixed(0)}s</div>
-          <div style="font-size:6px;font-weight:800;color:#334155;margin-top:1px;background:rgba(255,255,255,0.9);border-radius:2px;padding:0 1px">${r.sh}-${r.sa}</div>
-          <div style="font-size:5px;font-weight:800;color:${sc};margin-top:1px">${sn}</div>
-        </div>
-      </div>`;
-    }).join('');
-  }
+  // ── 카드2: 랠리 시간 (득점/실점 색상, 테두리 없음) ──────────────
+  const RBG=res=>W(res)?'#dbeafe':L(res)?'#fee2e2':'#f1f5f9';
+  const RTC=res=>W(res)?'#1d4ed8':L(res)?'#b91c1c':'#64748b';
 
-  const legendHTML=`<div style="display:flex;gap:10px;margin-top:9px;flex-wrap:wrap;font-size:9px">
-    ${[['#15803d','#dcfce7','~15초'],['#b45309','#fef9c3','15~22초'],['#b91c1c','#fee2e2','22초+']].map(([c,bg,l])=>`
-      <span style="display:flex;align-items:center;gap:4px">
-        <span style="width:10px;height:10px;background:${bg};border:2px solid ${c};border-radius:2px;display:inline-block"></span>
-        <span style="color:#475569;font-weight:700">${l}</span>
-      </span>`).join('')}
-    ${Object.entries(SC).map(([s,c])=>`
-      <span style="display:flex;align-items:center;gap:4px">
-        <span style="width:10px;height:4px;background:${c};border-radius:2px;display:inline-block"></span>
-        <span style="color:#475569;font-weight:700">${s}</span>
-      </span>`).join('')}
-  </div>`;
+  const rallyData = (()=>{
+    let sh=0, sa=0, ps='';
+    return GD().map(r=>{
+      const sn=r['이름']||'';
+      if(ps && sn!==ps){sh=0;sa=0;}
+      ps=sn;
+      const sec=parseFloat(r['기간']||0)/1000;
+      if(W(r.Result))sh++; else if(L(r.Result))sa++;
+      return{sec,sn,sh,sa,res:r.Result};
+    }).filter(r=>r.sec>0);
+  })();
 
-  // 타일 전체 카드2에 표시
+  const winData  = rallyData.filter(r=>W(r.res));
+  const loseData = rallyData.filter(r=>L(r.res));
+  const wAvg = winData.length  ? winData.reduce((s,r)=>s+r.sec,0)/winData.length   : 0;
+  const lAvg = loseData.length ? loseData.reduce((s,r)=>s+r.sec,0)/loseData.length : 0;
+  const tAvg = rallyData.length ? rallyData.reduce((s,r)=>s+r.sec,0)/rallyData.length : 0;
+
+  const rTileHTML = rallyData.map(r=>{
+    const v=r.sec, sn=r.sn, sc=SC[sn]||'#64748b';
+    return `<div style="width:28px;border-radius:4px;overflow:hidden;background:${RBG(r.res)};border:1px solid #e2e8f0">
+      <div style="height:3px;background:${sc}"></div>
+      <div style="padding:2px 1px 3px;text-align:center">
+        <div style="font-size:10px;font-weight:900;color:${RTC(r.res)};line-height:1">${v.toFixed(0)}s</div>
+        <div style="font-size:6px;font-weight:800;color:#334155;margin-top:1px;background:rgba(255,255,255,0.85);border-radius:2px;padding:0 1px">${r.sh}-${r.sa}</div>
+        <div style="font-size:5px;font-weight:800;color:${sc};margin-top:1px">${sn}</div>
+      </div>
+    </div>`;
+  }).join('');
+
   document.getElementById('t3').style.display = 'none';
 
-  function summaryBoxHTML() {
-    return `<div style="display:flex;gap:5px;margin-bottom:9px">
-      ${[{l:'평균',v:ca>0?ca.toFixed(1)+'초':'-',c:CC(ca),bg:CB(ca)},
-         {l:'25초 초과',v:co+'회',c:co>0?'#b91c1c':'#15803d',bg:co>0?'#fee2e2':'#dcfce7'},
-         {l:'평균 랠리',v:fmt(avg),c:'#334155',bg:'#f1f5f9'}
-      ].map(k=>`<div style="flex:1;background:${k.bg};border:1px solid ${k.c}30;border-radius:9px;padding:8px 6px;text-align:center">
-        <div style="font-size:9px;color:#64748b;font-weight:800;margin-bottom:3px">${k.l}</div>
+  let h2=`<div class="s" style="background:#f8fafc;border:1px solid #e2e8f0;overflow:visible">
+    <div class="stl" style="color:#334155">🏸 랠리 시간</div>
+    <div style="display:flex;gap:5px;margin-bottom:9px">
+      ${[{l:'전체 평균',v:tAvg.toFixed(1)+'초',c:'#334155',bg:'#f1f5f9'},
+         {l:'득점 평균',v:wAvg.toFixed(1)+'초',c:'#1d4ed8',bg:'#dbeafe'},
+         {l:'실점 평균',v:lAvg.toFixed(1)+'초',c:'#b91c1c',bg:'#fee2e2'}
+      ].map(k=>`<div style="flex:1;background:${k.bg};border:1px solid ${k.c}30;border-radius:9px;padding:8px 4px;text-align:center">
+        <div style="font-size:8px;color:#64748b;font-weight:800;margin-bottom:3px">${k.l}</div>
         <div style="font-size:19px;font-weight:900;color:${k.c};line-height:1">${k.v}</div>
       </div>`).join('')}
-    </div>`;
-  }
-
-  // 카드2: 전체 타일 한 장에
-  let h2=`<div class="s" style="background:#f8fafc;border:1px solid #e2e8f0;overflow:visible">
-    <div class="stl" style="color:#334155">⏲ 25초 클락</div>
-    ${summaryBoxHTML()}
+    </div>
     <div style="font-size:10px;color:#475569;font-weight:800;margin-bottom:6px">랠리별 · 세트 · 점수</div>
-    <div style="display:flex;flex-wrap:wrap;gap:2px">${tileHTML(ckR)}</div>
-    ${legendHTML}
+    <div style="display:flex;flex-wrap:wrap;gap:2px">${rTileHTML}</div>
+    <div style="display:flex;gap:10px;margin-top:9px;flex-wrap:wrap;font-size:9px">
+      ${[['#1d4ed8','#dbeafe','득점'],['#b91c1c','#fee2e2','실점']].map(([c,bg,l])=>`
+        <span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:${bg};border:1px solid ${c};border-radius:2px;display:inline-block"></span><span style="color:#475569;font-weight:700">${l}</span></span>`).join('')}
+      ${Object.entries(SC).map(([s,c])=>`
+        <span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:4px;background:${c};border-radius:2px;display:inline-block"></span><span style="color:#475569;font-weight:700">${s}</span></span>`).join('')}
+    </div>
   </div>`;
   document.getElementById('db2').innerHTML=h2;
 }
