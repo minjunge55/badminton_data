@@ -40,8 +40,11 @@
 <body>
 <div class="card" id="card">
   <div class="hdr">
-    <div class="sub">🎯 상대 분석 · <span id="io" contenteditable>MAS</span></div>
-    <div class="name" id="ip1" contenteditable>고이주딘</div>
+    <div class="sub">🎯 상대 분석</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">
+      <span style="font-size:11px;font-weight:800;background:#1d4ed8;color:#fff;padding:2px 8px;border-radius:12px" id="io" contenteditable>MAS</span>
+      <div class="name" id="ip1" contenteditable style="font-size:24px">GOH/IZZUDDIN</div>
+    </div>
     <div class="info">vs <span id="ip2" contenteditable>서승재/김원호</span> · <span id="id" contenteditable>Indonesia Open 2026 준결</span></div>
     <div class="badges" id="ds"></div>
   </div>
@@ -100,6 +103,38 @@ function render(){
     {l:'총 랠리',v:data.length+'회',c:'#334155'},
   ].map(k=>`<div class="kc"><div class="kl">${k.l}</div><div class="kv" style="color:${k.c}">${k.v}</div></div>`).join('');
 
+  // 득점/실점 상황
+  const dtCount={}, ltCount={};
+  wins.forEach(r=>{const t=r['득점유형']||'';if(t)dtCount[t]=(dtCount[t]||0)+1;});
+  loses.forEach(r=>{const t=r['상대성공실점']||'';if(t)ltCount[t]=(ltCount[t]||0)+1;});
+  const dtTotal=Object.values(dtCount).reduce((a,b)=>a+b,0)||1;
+  const ltTotal=Object.values(ltCount).reduce((a,b)=>a+b,0)||1;
+  const dtMax=Math.max(...Object.values(dtCount),1);
+  const ltMax=Math.max(...Object.values(ltCount),1);
+  function situBar(obj,total,mx,color){
+    return Object.entries(obj).sort((a,b)=>b[1]-a[1]).map(([k,v])=>{
+      const pct=Math.round(v/total*100);
+      return`<div class="br" style="margin-bottom:5px">
+        <div class="bl" style="width:60px;font-size:9px">${k}</div>
+        <div class="bt"><div class="bf" style="width:${Math.round(v/mx*100)}%;background:${color}"></div></div>
+        <div class="bv" style="font-size:9px;color:${color}">${pct}%</div>
+      </div>`;
+    }).join('');
+  }
+  const situHTML=`<div class="s">
+    <div class="stl" style="margin-bottom:10px">📊 득점 상황 / 실점 상황</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div>
+        <div style="font-size:9px;font-weight:800;color:#1d4ed8;margin-bottom:6px">우리 득점 상황</div>
+        ${dtTotal>0?situBar(dtCount,dtTotal,dtMax,'#1d4ed8'):'<div style="font-size:10px;color:#94a3b8">데이터 없음</div>'}
+      </div>
+      <div>
+        <div style="font-size:9px;font-weight:800;color:#b91c1c;margin-bottom:6px">상대 득점 상황</div>
+        ${ltTotal>0?situBar(ltCount,ltTotal,ltMax,'#b91c1c'):'<div style="font-size:10px;color:#94a3b8">데이터 없음</div>'}
+      </div>
+    </div>
+  </div>`;
+
   // 구간별 상대 득점률
   const segs=[
     ['~5초',   r=>parseFloat(r['기간']||0)/1000<=5],
@@ -150,15 +185,11 @@ function render(){
     ['포인트 4','여기에 직접 입력하세요'],
   ];
 
-  document.getElementById('db').innerHTML=`
+  document.getElementById('db').innerHTML=situHTML+`
     <div class="s">
-      <div class="stl">⏱ 랠리 길이별 상대 득점률</div>
+      <div class="stl">⏱ 랠리 길이별 우리 실점률</div>
       ${segHTML}
-      <div style="font-size:9px;color:#94a3b8;margin-top:4px">50% 이상 = 상대 유리 구간</div>
-    </div>
-    <div class="s">
-      <div class="stl">📊 세트별 랠리 평균</div>
-      ${setHTML}
+      <div style="font-size:9px;color:#94a3b8;margin-top:4px">50% 이상 = 우리 불리 구간</div>
     </div>
     <div class="s">
       <div class="stl">🎯 리벤지 포인트</div>
