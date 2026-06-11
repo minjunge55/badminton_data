@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390, initial-scale=1.0">
+<title>복식</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:#94a3b8;display:flex;flex-direction:column;align-items:center;padding:8px 0;gap:8px}
+.ep{width:390px;background:#fff;border-radius:10px;padding:8px 10px;display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.ep label{font-size:9px;color:#64748b;font-weight:700}
+.ep input{padding:4px 7px;border-radius:6px;border:1px solid #e2e8f0;background:#f8fafc;font-size:10px;font-family:inherit;color:#0f172a}
+.epb{padding:4px 8px;border-radius:6px;border:1px solid #e2e8f0;background:#f1f5f9;color:#64748b;font-size:9px;font-weight:700;cursor:pointer;font-family:inherit}
+.epb.on{background:#1d4ed8;color:#fff;border-color:#1d4ed8}
+/* 탭 전환 버튼 */
+.tabs{width:390px;display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.tab{padding:9px 0;border-radius:10px;font-size:13px;font-weight:900;cursor:pointer;text-align:center;border:2px solid #e2e8f0;background:#fff;color:#64748b;transition:all .15s;font-family:inherit}
+.tab.on{background:#1d4ed8;color:#fff;border-color:#1d4ed8}
+.hint{font-size:9px;color:#1e3a5f;font-weight:700;text-align:center;background:#dbeafe;padding:4px 12px;border-radius:6px}
+/* 카드 390×844 */
+.card{width:390px;height:844px;background:#fff;display:flex;flex-direction:column;overflow:visible}
+.top{height:5px;background:#1d4ed8;flex-shrink:0}
+.hdr{background:#eff6ff;padding:9px 14px 7px;flex-shrink:0;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #bfdbfe}
+.bw{display:flex;gap:3px;flex-wrap:wrap;justify-content:flex-end}
+.bg{font-size:10px;font-weight:900;padding:2px 8px;border-radius:5px}
+.kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:#e2e8f0;flex-shrink:0}
+.kc{padding:7px 0;text-align:center}
+.kl{font-size:7px;letter-spacing:.8px;text-transform:uppercase;margin-bottom:1px;color:#94a3b8}
+.kv{font-size:18px;font-weight:900;line-height:1}
+.body{flex:1;padding:6px 10px;display:flex;flex-direction:column;gap:5px;overflow:visible}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.s{border-radius:9px;padding:6px 8px}
+.stl{font-size:7px;font-weight:900;letter-spacing:.8px;text-transform:uppercase;margin-bottom:5px}
+.cat{border-radius:8px;padding:5px 6px;border-left:3px solid}
+.cl{font-size:7px;font-weight:700;color:#64748b;margin-bottom:1px}
+.cv{font-size:15px;font-weight:900;line-height:1;margin-bottom:2px}
+.ct{height:3px;border-radius:2px;overflow:hidden;margin-bottom:2px}
+.cp{font-size:8px;font-weight:700}
+.br{margin-bottom:4px}
+.bh{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px}
+.bn{font-size:9px;font-weight:700;color:#1e293b}
+.bm{display:flex;gap:4px;align-items:center}
+.bp{font-size:7px;color:#94a3b8}
+.bc{font-size:11px;font-weight:900}
+.bt{height:4px;background:rgba(0,0,0,.07);border-radius:2px;overflow:hidden}
+.bf{height:100%;border-radius:2px}
+.rr{display:flex;align-items:center;gap:4px;margin-bottom:3px}
+.rd{width:5px;height:5px;border-radius:1px;flex-shrink:0}
+.rl{font-size:8px;color:#334155;width:68px;flex-shrink:0}
+.rc{font-size:9px;font-weight:900;min-width:14px;text-align:right;margin-right:3px}
+.rt{height:3px;background:#f1f5f9;border-radius:2px;overflow:hidden;width:52px}
+.rf{height:100%;border-radius:2px}
+.cks{display:flex;gap:4px;margin-bottom:4px}
+.ckb{flex:1;border-radius:7px;padding:4px 5px;text-align:center}
+.ckl{font-size:6px;color:#64748b;margin-bottom:1px}
+.ckv{font-size:12px;font-weight:900;line-height:1}
+.ckt{display:flex;flex-wrap:wrap;gap:2px}
+.tile{width:34px;border-radius:5px;overflow:hidden}
+.tt{height:3px}
+.tb{padding:2px 1px 3px;text-align:center}
+.ts{font-size:10px;font-weight:900;line-height:1}
+.tsc{font-size:6px;font-weight:700;color:#475569;margin-top:1px;background:rgba(255,255,255,.85);border-radius:2px;padding:0 2px}
+.tset{font-size:5px;font-weight:700;margin-top:1px}
+.bot{height:5px;background:#1d4ed8;flex-shrink:0}
+</style>
+</head>
+<body>
+<div class="ep">
+  <label>선수1</label><input id="ip1" value="김재현" oninput="RA()" style="width:58px">
+  <label>선수2</label><input id="ip2" value="장하정" oninput="RA()" style="width:58px">
+  <label>상대</label><input id="io" value="상대 팀" oninput="RA()" style="width:58px">
+  <label>날짜</label><input id="id" value="32강" oninput="RA()" style="width:44px">
+  <label>CSV</label><label class="epb">📂<input type="file" accept=".csv" style="display:none" onchange="LC(this)"></label>
+  <div id="sb" style="display:flex;gap:3px"></div>
+</div>
+<div class="tabs">
+  <div class="tab on" id="t1" onclick="SW(1)">📸 김재현 1</div>
+  <div class="tab"    id="t2" onclick="SW(2)">📸 김재현 2</div>
+  <div class="tab"    id="t3" onclick="SW(3)">📸 장하정 1</div>
+  <div class="tab"    id="t4" onclick="SW(4)">📸 장하정 2</div>
+</div>
+<div class="hint" id="hint">득점+실수 → 스크린샷 → 탭 전환 → 클락 → 스크린샷</div>
+
+<!-- 선수1 카드1: 득점유형+실점유형+실수기술 -->
+<div class="card" id="card1">
+  <div class="top"></div>
+  <div class="hdr">
+    <div>
+      <div style="font-size:7px;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase">🏸 혼복 개인 분석 1/2</div>
+      <div id="dp1" style="font-size:20px;font-weight:900;color:#1d4ed8;line-height:1.15">김재현</div>
+      <div id="di1" style="font-size:9px;color:#64748b;margin-top:1px">vs 상대 팀 · 32강</div>
+    </div>
+    <div class="bw" id="ds1"></div>
+  </div>
+  <div class="kpi" id="dk1"></div>
+  <div class="body" id="db1"></div>
+  <div class="bot"></div>
+</div>
+<!-- 선수1 카드2: 25초클락 -->
+<div class="card" id="card2" style="display:none">
+  <div class="top"></div>
+  <div class="hdr">
+    <div>
+      <div style="font-size:7px;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase">🏸 혼복 개인 분석 2/2</div>
+      <div id="dp2" style="font-size:20px;font-weight:900;color:#1d4ed8;line-height:1.15">김재현</div>
+      <div id="di2" style="font-size:9px;color:#64748b;margin-top:1px">vs 상대 팀 · 32강</div>
+    </div>
+    <div class="bw" id="ds2"></div>
+  </div>
+  <div class="kpi" id="dk2"></div>
+  <div class="body" id="db2"></div>
+  <div class="bot"></div>
+</div>
+<!-- 선수2 카드1 -->
+<div class="card" id="card3" style="display:none">
+  <div class="top"></div>
+  <div class="hdr">
+    <div>
+      <div style="font-size:7px;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase">🏸 혼복 개인 분석 1/2</div>
+      <div id="dp3" style="font-size:20px;font-weight:900;color:#1d4ed8;line-height:1.15">장하정</div>
+      <div id="di3" style="font-size:9px;color:#64748b;margin-top:1px">vs 상대 팀 · 32강</div>
+    </div>
+    <div class="bw" id="ds3"></div>
+  </div>
+  <div class="kpi" id="dk3"></div>
+  <div class="body" id="db3"></div>
+  <div class="bot"></div>
+</div>
+<!-- 선수2 카드2 -->
+<div class="card" id="card4" style="display:none">
+  <div class="top"></div>
+  <div class="hdr">
+    <div>
+      <div style="font-size:7px;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase">🏸 혼복 개인 분석 2/2</div>
+      <div id="dp4" style="font-size:20px;font-weight:900;color:#1d4ed8;line-height:1.15">장하정</div>
+      <div id="di4" style="font-size:9px;color:#64748b;margin-top:1px">vs 상대 팀 · 32강</div>
+    </div>
+    <div class="bw" id="ds4"></div>
+  </div>
+  <div class="kpi" id="dk4"></div>
+  <div class="body" id="db4"></div>
+  <div class="bot"></div>
+</div>
+
+<script>
+const CSV=`이름,위치,기간,Result,득점상황,실점상황,Home player,Technics
+1set (1),187720,6480,Away Mistake Win,,,,
+1set (2),204200,14880,Away Successful Lose,,수비상황,,
+1set (3),231080,4480,Away Successful Lose,,초구상황,,
+1set (4),246440,12800,Away Successful Lose,,드라이브상황,,
+1set (5),278280,6240,Away Mistake Win,,,,
+1set (6),300920,6640,Away Mistake Win,,,,
+1set (7),320760,8960,Away Successful Lose,,수비상황,,
+1set (8),344600,11760,Mistake Lose,,,Home1,Clear
+1set (9),375000,11920,Away Successful Lose,,드라이브상황,,
+1set (10),408600,6160,Successful Win,드라이브상황,,,
+1set (11),428600,14960,Successful Win,수비전환상황,,,
+1set (12),466280,3840,Away Successful Lose,,드라이브상황,,
+1set (13),491640,12800,Mistake Lose,,,Home1,cross
+1set (14),528200,15840,Mistake Lose,,,Home2,Return
+1set (15),566760,7120,Successful Win,공격상황,,,
+1set (16),594680,12640,Mistake Lose,,,Home2,cross
+1set (17),628840,2800,Successful Win,초구상황,,,
+1set (18),647240,10880,Away Mistake Win,,,,
+1set (19),678120,2720,Mistake Lose,,,Home1,Drive
+1set (20),758880,10320,Mistake Lose,,,Home2,Block
+1set (21),792240,11600,Away Successful Lose,,수비상황,,
+1set (22),826160,6320,Mistake Lose,,,Home1,Cut
+1set (23),854160,8080,Away Mistake Win,,,,
+1set (24),881200,20560,Away Successful Lose,,수비상황,,
+1set (25),935440,6240,Successful Win,드라이브상황,,,
+1set (26),956720,11200,Away Successful Lose,,수비상황,,
+1set (27),990160,6720,Mistake Lose,,,Home1,Smash
+1set (28),1016560,4400,Away Mistake Win,,,,
+1set (29),1034800,3600,Mistake Lose,,,Home1,숏서브
+1set (30),1052240,4960,Away Successful Lose,,수비상황,,
+1set (31),1072320,5600,Mistake Lose,,,Home1,Block
+1set (32),1089360,5440,Mistake Lose,,,Home2,S.Drive
+2set (1),1226080,8960,Mistake Lose,,,Home1,Push
+2set (2),1247760,11120,Away Mistake Win,,,,
+2set (3),1274480,2560,Away Mistake Win,,,,
+2set (4),1289840,4320,Away Mistake Win,,,,
+2set (5),1306240,4160,Away Successful Lose,,드라이브상황,,
+2set (6),1331840,4720,Successful Win,초구상황,,,
+2set (7),1350240,8640,Away Successful Lose,,수비상황,,
+2set (8),1384240,5040,Successful Win,초구상황,,,
+2set (9),1399040,10000,Away Successful Lose,,수비상황,,
+2set (10),1430800,4560,Successful Win,초구상황,,,
+2set (11),1448560,26480,Away Successful Lose,,드라이브상황,,
+2set (12),1523760,5440,Away Successful Lose,,초구상황,,
+2set (13),1546640,12320,Away Successful Lose,,수비상황,,
+2set (14),1578320,5440,Mistake Lose,,,Home2,숏서브 리시브
+2set (15),1598480,7520,Away Successful Lose,,드라이브상황,,
+2set (16),1622320,8400,Away Successful Lose,,수비상황,,
+2set (17),1648080,5040,Mistake Lose,,,Home1,롱서브 리시브
+2set (18),1722320,4960,Away Successful Lose,,드라이브상황,,
+2set (19),1744880,3280,Successful Win,초구상황,,,
+2set (20),1759600,8000,Away Mistake Win,,,,
+2set (21),1818240,5920,Away Mistake Win,,,,
+2set (22),1834000,13200,Away Successful Lose,,드라이브상황,,
+2set (23),1868720,4640,Mistake Lose,,,Home2,Push
+2set (24),1885680,16960,Mistake Lose,,,Home1,Hairpin
+2set (25),1924240,8880,Away Mistake Win,,,,
+2set (26),1952160,9280,Successful Win,드라이브상황,,,
+2set (27),1985440,4160,Mistake Lose,,,Home1,숏서브
+2set (28),2004400,19600,Away Mistake Win,,,,
+2set (29),2046960,12240,Away Mistake Win,,,,
+2set (30),2079120,4400,Mistake Lose,,,Home2,숏서브
+2set (31),2105920,6480,Mistake Lose,,,Home1,Return
+2set (32),2131280,3760,Away Successful Lose,,초구상황,,
+2set (33),2150320,3920,Mistake Lose,,,Home2,숏서브 리시브
+2set (34),2171680,4080,Successful Win,초구상황,,,
+2set (35),2191680,5360,Away Successful Lose,,드라이브상황,,`;
+
+function pcsv(t){
+  // 구분자 자동 감지 (세미콜론 or 콤마)
+  const lines=t.trim().split('\n').filter(Boolean);
+  if(lines.length<2)return[];
+  const delim=lines[0].includes(';')?';':',';
+  const h=lines[0].split(delim).map(x=>x.trim().replace(/^\uFEFF/,'').replace(/\r/g,''));
+  return lines.slice(1).map(s=>{
+    const v=s.split(delim).map(x=>x.trim().replace(/\r/g,''));
+    const o={};h.forEach((k,i)=>o[k]=v[i]||'');
+
+    // 신규 포맷 → 기존 포맷으로 정규화
+    // 이름: "1set (1)" → "1set"
+    if(o['이름']){const m=o['이름'].match(/(\d+set)/);if(m)o['이름']=m[1];}
+    // Player 컬럼: "Home player" → "Player"
+    if(o['Home player']!==undefined){o['Player']=o['Home player'];delete o['Home player'];}
+    // 실수기술: "Technics" → "실수 기술"
+    if(o['Technics']!==undefined){o['실수 기술']=o['Technics'];delete o['Technics'];}
+    // 득점유형: "득점상황" → "득점유형"
+    if(o['득점상황']!==undefined){
+      const map={'공격상황':'공격','드라이브상황':'중간볼','초구상황':'초구','수비전환상황':'수비'};
+      o['득점유형']=map[o['득점상황']]||o['득점상황'];
+    }
+    // 실점유형: "실점상황" → "상대성공실점"
+    if(o['실점상황']!==undefined){
+      const map={'수비상황':'수비','드라이브상황':'중간볼','초구상황':'초구'};
+      o['상대성공실점']=map[o['실점상황']]||o['실점상황'];
+    }
+    // Result 정규화: "Away Mistake Win" → "Away Mistakes Win"
+    if(o['Result']==='Away Mistake Win')o['Result']='Away Mistakes Win';
+    // 실수기술 영→한 매핑 (ETC 없으면 판단미스 변환 안 함)
+    const techMap={
+      'Clear':'클리어','Smash':'스매시','Return':'리턴','Drop':'드롭',
+      'Hairpin':'헤어핀','Drive':'드라이브','Cut':'커트',
+      'Block':'블록(앞잡는것)',
+      'Push':'푸시','cross':'크로스','Cross':'크로스',
+      'S.Drive':'숏드라이브','Short Drive':'숏드라이브',
+      'Serve':'서브','Receive':'리시브','Serve Receive':'서브리시브',
+      '숏서브':'숏서브','숏서브 리시브':'숏서브리시브','롱서브 리시브':'롱서브리시브',
+      'ETC':'판단미스','etc':'판단미스'
+    };
+    if(o['실수 기술']&&techMap[o['실수 기술']])o['실수 기술']=techMap[o['실수 기술']];
+    return o;
+  });
+}
+const W=r=>r&&r.toLowerCase().includes('win');
+const L=r=>r&&r.toLowerCase().includes('lose');
+const fmt=ms=>{const s=Math.round(ms/1000);return s<60?s+'초':Math.floor(s/60)+'분'+(s%60)+'초';};
+function ckclk(rows){
+  const s=[...rows].sort((a,b)=>+a['위치']-+b['위치']);
+  let h=0,a=0;const sk=new Set();
+  s.forEach((r,i)=>{if(W(r.Result))h++;else if(L(r.Result))a++;if(h>=21||a>=21){if(i+1<s.length)sk.add(i+1);h=0;a=0;}});
+  return s.map((r,i)=>{
+    if(i===0||sk.has(i)||s[i]['이름']!==s[i-1]['이름'])return{...r,c:null};
+    const pe=+s[i-1]['위치']+ +s[i-1]['기간'];const g=(+r['위치']-pe)/1000;
+    return{...r,c:(g>0&&g<60)?parseFloat(g.toFixed(1)):null};
+  });
+}
+const BLUE=['#1e3a5f','#1d4ed8','#2563eb','#60a5fa'];
+const RED=['#7f1d1d','#991b1b','#b91c1c','#dc2626','#ef4444','#f87171'];
+const SC_C=['공격','중간볼','초구','수비'],LC_C=['수비','중간볼','공격','초구'];
+const RM={'Away Mistakes Win':{c:'#1d4ed8',l:'상대실수 득점'},'Successful Win':{c:'#2563eb',l:'성공 득점'},'Away Successful Lose':{c:'#b91c1c',l:'상대성공 실점'},'Mistake Lose':{c:'#ef4444',l:'본인실수 실점'}};
+const SETC={'1set':'#1d4ed8','2set':'#6d28d9','3set':'#b45309'};
+const CC=v=>v<=15?'#15803d':v<=22?'#b45309':'#b91c1c';
+const CB=v=>v<=15?'#dcfce7':v<=22?'#fef9c3':'#fee2e2';
+const CD=v=>v<=15?'#86efac':v<=22?'#fde047':'#fca5a5';
+
+let AD=[],CF='all',curTab=1;
+function LC(i){const f=i.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{AD=ckclk(pcsv(e.target.result));BS();RA();};r.readAsText(f,'utf-8');}
+function BS(){
+  const sets=[...new Set(AD.map(r=>r['이름']).filter(Boolean))].sort();
+  const w=document.getElementById('sb');w.innerHTML='';
+  ['all',...sets].forEach(s=>{const b=document.createElement('button');b.className='epb'+(s===CF?' on':'');b.textContent=s==='all'?'전체':s;b.onclick=()=>{CF=s;BS();RA();};w.appendChild(b);});
+}
+const GD=()=>CF==='all'?AD:AD.filter(r=>r['이름']===CF);
+
+function SW(n){
+  curTab=n;
+  const p1=document.getElementById('ip1').value, p2=document.getElementById('ip2').value;
+  // 탭 버튼 텍스트 업데이트
+  document.getElementById('t1').textContent='📸 '+p1+' 1';
+  document.getElementById('t2').textContent='📸 '+p1+' 2';
+  document.getElementById('t3').textContent='📸 '+p2+' 1';
+  document.getElementById('t4').textContent='📸 '+p2+' 2';
+  [1,2,3,4].forEach(i=>{
+    const t=document.getElementById('t'+i), c=document.getElementById('card'+i);
+    if(t) t.className='tab'+(i===n?' on':'');
+    if(c) c.style.display=i===n?'flex':'none';
+  });
+  const hints={1:`📸 ${p1} 득점+실수 스크린샷`,2:`📸 ${p1} 랠리시간 스크린샷`,3:`📸 ${p2} 득점+실수 스크린샷`,4:`📸 ${p2} 랠리시간 스크린샷`};
+  document.getElementById('hint').textContent=hints[n]||'';
+}
+
+function RA(){
+  renderCard('Home1',1,2);
+  renderCard('Home2',3,4);
+  // 탭 텍스트 초기화
+  const p1=document.getElementById('ip1').value, p2=document.getElementById('ip2').value;
+  document.getElementById('t1').textContent='📸 '+p1+' 1';
+  document.getElementById('t2').textContent='📸 '+p1+' 2';
+  document.getElementById('t3').textContent='📸 '+p2+' 1';
+  document.getElementById('t4').textContent='📸 '+p2+' 2';
+}
+
+function renderCard(key, c1idx, c2idx){
+  const p1=document.getElementById('ip1').value, p2=document.getElementById('ip2').value;
+  const pn=key==='Home1'?p1:p2;
+  const op=document.getElementById('io').value, dt=document.getElementById('id').value;
+
+  const data=GD(), wr=data.filter(r=>r.Result);
+  const wins=wr.filter(r=>W(r.Result)).length, loses=wr.filter(r=>L(r.Result)).length;
+  const rate=wr.length?Math.round(wins/wr.length*100):0;
+  const avg=data.length?data.reduce((s,r)=>s+parseFloat(r['기간']||0),0)/data.length:0;
+
+  const sets=[...new Set(AD.map(r=>r['이름']).filter(Boolean))].sort();
+  const ss=sets.map(s=>{const rows=AD.filter(r=>r['이름']===s);return{s,w:rows.filter(r=>W(r.Result)).length,l:rows.filter(r=>L(r.Result)).length};});
+  const badgeHTML=ss.map(x=>{const win=x.w>x.l;return`<div class="bg" style="background:${win?'#eff6ff':'#fef2f2'};border:1px solid ${win?'#bfdbfe':'#fecaca'};color:${win?'#1d4ed8':'#b91c1c'}">${x.s} ${x.w}-${x.l}</div>`;}).join('');
+  const kpiHTML=[{l:'팀 득점',v:wins,c:'#1d4ed8',bg:'#eff6ff'},{l:'팀 실점',v:loses,c:'#b91c1c',bg:'#fef2f2'},{l:'득점률',v:rate+'%',c:'#1e3a5f',bg:'#eff6ff'},{l:'본인 실수',v:data.filter(r=>r['실수 기술']&&r['Player']===key).length,c:'#1d4ed8',bg:'#eff6ff'}].map(k=>`<div class="kc" style="background:${k.bg}"><div class="kl" style="color:${k.c}">${k.l}</div><div class="kv" style="color:${k.c}">${k.v}</div></div>`).join('');
+
+  [c1idx, c2idx].forEach(idx=>{
+    document.getElementById('dp'+idx).textContent=pn;
+    document.getElementById('di'+idx).textContent='vs '+op+' · '+dt;
+    document.getElementById('ds'+idx).innerHTML=badgeHTML;
+    document.getElementById('dk'+idx).innerHTML=idx===c1idx?kpiHTML:'';
+  });
+
+  const scM={},lcM={};
+  data.forEach(r=>{const t=r['득점유형'];if(t)scM[t]=(scM[t]||0)+1;});
+  data.forEach(r=>{const t=r['상대성공실점'];if(t)lcM[t]=(lcM[t]||0)+1;});
+  const tSc=SC_C.reduce((s,k)=>s+(scM[k]||0),0), tLc=LC_C.reduce((s,k)=>s+(lcM[k]||0),0);
+
+  const myM=data.filter(r=>r['실수 기술']&&r['Player']===key);
+  const myT=myM.length;
+  const tm={};myM.forEach(r=>{const t=r['실수 기술'];tm[t]=(tm[t]||0)+1;});
+  const te=Object.entries(tm).sort((a,b)=>b[1]-a[1]), tmx=te[0]?.[1]||1;
+
+  const rm={};wr.forEach(r=>{rm[r.Result]=(rm[r.Result]||0)+1;});
+  const re=Object.entries(rm).sort((a,b)=>b[1]-a[1]), rmx=re[0]?.[1]||1;
+
+  let sh=0,sa=0,ps='';
+  const ckR=data.map(r=>{const cs=r['이름']||'';if(ps&&cs!==ps){sh=0;sa=0;}ps=cs;if(W(r.Result))sh++;else if(L(r.Result))sa++;return{...r,sh,sa};}).filter(r=>r.c!==null&&r.c>0);
+  const ca=ckR.length?ckR.reduce((s,r)=>s+r.c,0)/ckR.length:0, co=ckR.filter(r=>r.c>25).length;
+
+  // ── 카드A: 득점유형 + 실점유형 + 본인실수기술 ──────────────────
+  let hA='';
+  hA+=`<div><div style="font-size:8px;font-weight:900;color:#1d4ed8;margin-bottom:4px;display:flex;align-items:center;gap:5px"><span style="width:2px;height:13px;background:#1d4ed8;border-radius:2px;display:inline-block"></span>득점 유형 <span style="font-weight:400;color:#94a3b8;font-size:7px">총 ${tSc}회</span></div><div class="g4">`;
+  SC_C.forEach((cat,i)=>{const cnt=scM[cat]||0,pct=tSc>0?Math.round(cnt/tSc*100):0,c=BLUE[i];hA+=`<div class="cat" style="background:#fff;border:1px solid ${c}20;border-left-color:${c}"><div class="cl">${cat}</div><div class="cv" style="color:${c}">${cnt}<span style="font-size:8px;color:#94a3b8;font-weight:400">회</span></div><div class="ct" style="background:#f1f5f9"><div style="width:${pct}%;height:100%;background:${c};border-radius:2px"></div></div><div class="cp" style="color:${c}">${pct}%</div></div>`;});
+  hA+=`</div></div>`;
+  hA+=`<div><div style="font-size:8px;font-weight:900;color:#b91c1c;margin-bottom:4px;display:flex;align-items:center;gap:5px"><span style="width:2px;height:13px;background:#b91c1c;border-radius:2px;display:inline-block"></span>실점 유형 <span style="font-weight:400;color:#94a3b8;font-size:7px">총 ${tLc}회</span></div><div class="g4">`;
+  LC_C.forEach((cat,i)=>{const cnt=lcM[cat]||0,pct=tLc>0?Math.round(cnt/tLc*100):0,c=RED[Math.min(i,2)];hA+=`<div class="cat" style="background:#fff;border:1px solid ${c}20;border-left-color:${c}"><div class="cl">${cat}</div><div class="cv" style="color:${c}">${cnt}<span style="font-size:8px;color:#94a3b8;font-weight:400">회</span></div><div class="ct" style="background:#f1f5f9"><div style="width:${pct}%;height:100%;background:${c};border-radius:2px"></div></div><div class="cp" style="color:${c}">${pct}%</div></div>`;});
+  hA+=`</div></div>`;
+  hA+=`<div class="s" style="background:#eff6ff;border:1px solid #bfdbfe"><div class="stl" style="color:#1d4ed8">본인 실수 기술 — 총 ${myT}회</div>`;
+  if(te.length===0)hA+=`<div style="color:#94a3b8;font-size:10px;text-align:center;padding:6px 0">기록 없음</div>`;
+  else te.forEach(([t,c],i)=>{const pct=Math.round(c/myT*100),col=RED[Math.min(i,RED.length-1)];hA+=`<div class="br"><div class="bh"><span class="bn">${t}</span><div class="bm"><span class="bp">${pct}%</span><span class="bc" style="color:${col}">${c}회</span></div></div><div class="bt"><div class="bf" style="width:${c/tmx*100}%;background:${col}"></div></div></div>`;});
+  hA+=`</div>`;
+  hA+=`<div class="s" style="background:#f8fafc;border:1px solid #e2e8f0"><div class="stl" style="color:#334155">경기 결과</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 10px">`;
+  re.forEach(([k,v])=>{const m=RM[k];hA+=`<div class="rr"><div class="rd" style="background:${m?.c}"></div><span class="rl">${m?.l||k}</span><span class="rc" style="color:${m?.c}">${v}</span><div class="rt" style="width:40px"><div class="rf" style="width:${v/rmx*100}%;background:${m?.c}"></div></div></div>`;});
+  hA+=`</div></div>`;
+  const matchWin = wins > loses;
+  if(!matchWin) hA+=`<div style="text-align:center;padding:12px 0 4px;font-size:15px;font-weight:900;color:#b91c1c;letter-spacing:1px">고생했어요! 💪</div>`;
+  document.getElementById('db'+c1idx).innerHTML=hA;
+  const RBG=res=>W(res)?'#dbeafe':L(res)?'#fee2e2':'#f1f5f9';
+  const RTC=res=>W(res)?'#1d4ed8':L(res)?'#b91c1c':'#64748b';
+
+  const rallyData=(()=>{
+    let sh=0,sa=0,ps='';
+    return data.map(r=>{
+      const sn=r['이름']||'';
+      if(ps&&sn!==ps){sh=0;sa=0;}
+      ps=sn;
+      const sec=parseFloat(r['기간']||0)/1000;
+      if(W(r.Result))sh++;else if(L(r.Result))sa++;
+      return{sec,sn,sh,sa,res:r.Result};
+    }).filter(r=>r.sec>0);
+  })();
+  const winD=rallyData.filter(r=>W(r.res));
+  const loseD=rallyData.filter(r=>L(r.res));
+  const wAvg=winD.length?winD.reduce((s,r)=>s+r.sec,0)/winD.length:0;
+  const lAvg=loseD.length?loseD.reduce((s,r)=>s+r.sec,0)/loseD.length:0;
+  const tAvg=rallyData.length?rallyData.reduce((s,r)=>s+r.sec,0)/rallyData.length:0;
+
+  const rTileHTML=rallyData.map(r=>{
+    const v=r.sec,sn=r.sn,sc=SETC[sn]||'#64748b';
+    return`<div style="width:28px;border-radius:4px;overflow:hidden;background:${RBG(r.res)};border:1px solid #e2e8f0"><div style="height:3px;background:${sc}"></div><div style="padding:2px 1px 3px;text-align:center"><div style="font-size:10px;font-weight:900;color:${RTC(r.res)};line-height:1">${v.toFixed(0)}s</div><div style="font-size:6px;font-weight:800;color:#334155;margin-top:1px;background:rgba(255,255,255,0.85);border-radius:2px;padding:0 1px">${r.sh}-${r.sa}</div><div style="font-size:5px;font-weight:800;color:${sc};margin-top:1px">${sn}</div></div></div>`;
+  }).join('');
+
+  const rLegHTML=`<div style="display:flex;gap:9px;margin-top:8px;flex-wrap:wrap;font-size:9px">${[['#1d4ed8','#dbeafe','득점'],['#b91c1c','#fee2e2','실점']].map(([c,bg,l])=>`<span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:${bg};border:1px solid ${c};border-radius:2px;display:inline-block"></span><span style="color:#475569;font-weight:700">${l}</span></span>`).join('')}${Object.entries(SETC).map(([s,c])=>`<span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:4px;background:${c};border-radius:2px;display:inline-block"></span><span style="color:#475569;font-weight:700">${s}</span></span>`).join('')}</div>`;
+
+  const rSumHTML=`<div style="display:flex;gap:5px;margin-bottom:9px">${[{l:'전체 평균',v:tAvg.toFixed(1)+'초',c:'#334155',bg:'#f1f5f9'},{l:'득점 평균',v:wAvg.toFixed(1)+'초',c:'#1d4ed8',bg:'#dbeafe'},{l:'실점 평균',v:lAvg.toFixed(1)+'초',c:'#b91c1c',bg:'#fee2e2'}].map(k=>`<div style="flex:1;background:${k.bg};border:1px solid ${k.c}30;border-radius:9px;padding:8px 4px;text-align:center"><div style="font-size:7px;color:#64748b;font-weight:800;margin-bottom:3px">${k.l}</div><div style="font-size:16px;font-weight:900;color:${k.c};line-height:1">${k.v}</div></div>`).join('')}</div>`;
+
+  let hB=`<div class="s" style="background:#f8fafc;border:1px solid #e2e8f0;overflow:visible"><div class="stl" style="color:#334155">🏸 랠리 시간</div>${rSumHTML}<div style="font-size:10px;color:#475569;font-weight:800;margin-bottom:6px">랠리별 · 세트</div><div style="display:flex;flex-wrap:wrap;gap:2px">${rTileHTML}</div>${rLegHTML}</div>`;
+  document.getElementById('db'+c2idx).innerHTML=hB;
+}
+
+AD=ckclk(pcsv(CSV));BS();RA();
+</script>
+</body>
+</html>
