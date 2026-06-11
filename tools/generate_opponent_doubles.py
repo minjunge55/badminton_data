@@ -45,7 +45,8 @@ def main():
     out_dir = Path(csv_path).parent / "cards_output"
     out_dir.mkdir(parents=True, exist_ok=True)
     prefix = Path(csv_path).stem
-    out = out_dir / f"{prefix}_상대분석_{opp}.png"
+    safe_opp = opp.replace("/","_").replace(" ","_")
+    out = out_dir / f"{prefix}_상대분석_{safe_opp}.png"
     print(f"\n🎯 복식/혼복 상대 분석 카드")
     print(f"   {p1}/{p2} 기준 · vs {opp} ({country}) · {detail}\n")
     html = build_html(csv_path, opp, p1, p2, country, detail)
