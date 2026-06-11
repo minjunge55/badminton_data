@@ -52,9 +52,9 @@
 <body>
 <div class="card" id="card">
   <div class="hdr">
-    <div class="sub">🎯 상대 분석 · <span id="io">JPN</span></div>
-    <div class="name" id="ip1">야마구치 아카네</div>
-    <div class="info">vs <span id="ip2">안세영</span> · <span id="id">Indonesia Open 2026 결승</span></div>
+    <div class="sub">🎯 상대 분석 · <span id="io">COUNTRY</span></div>
+    <div class="name" id="ip1">OPP_NAME</div>
+    <div class="info">vs <span id="ip2">ME_NAME</span> · <span id="id">DETAIL</span></div>
     <div class="badges" id="ds"></div>
   </div>
   <div class="kpi" id="dk"></div>
@@ -225,14 +225,6 @@ function render(){
     .map(([z,v])=>[z,v,Math.round(v/zTotal*100)]);
   const zMax=zItems[0]?zItems[0][2]:1;
 
-  // 상대 실수 유도
-  const techCount={};
-  ml.forEach(r=>{const t=r['실수 기술']||'';if(t)techCount[t]=(techCount[t]||0)+1;});
-  const tTotal=ml.length||1;
-  const tItems=Object.entries(techCount).sort((a,b)=>b[1]-a[1])
-    .map(([t,v])=>[t,v,Math.round(v/tTotal*100)]);
-  const tMax=tItems[0]?tItems[0][2]:1;
-
   // 내 득점존 (상대 약점)
   const wZone={};
   wins.filter(r=>r.Result==='Successful Win').forEach(r=>{const z=r['Zone']||'';if(z)wZone[z]=(wZone[z]||0)+1;});
@@ -266,7 +258,6 @@ function render(){
   const tips=[
     [`${topZone} 수비 집중`, `상대 득점 ${zItems[0]?zItems[0][2]:0}% 집중 구간`],
     [`${avgL.toFixed(1)}초 이내 마무리`, `상대 득점 평균 랠리 — 더 짧게 끝낼수록 유리`],
-    [tItems[0]?`${tItems[0][0]} 실수 주의`:'실수 최소화', `상대 유도 실수 ${tItems[0]?tItems[0][2]:0}% 집중`],
     [wItems[0]?`${wItems[0][0]} 공략`:'앞코트 공략', `내 득점존 1위 — 상대 약점`],
   ];
 
@@ -274,19 +265,6 @@ function render(){
     <div class="s">
       <div class="stl">📍 상대 득점존 (성공 ${asl.length}회)</div>
       ${zItems.length?barHTML(zItems,zMax,'#b91c1c'):'<div style="font-size:11px;color:#94a3b8">데이터 없음</div>'}
-    </div>
-    <div class="s">
-      <div class="stl">⚠️ 상대 유도 실수 (${ml.length}회)</div>
-      ${tItems.length?barHTML(tItems,tMax,'#7c3aed'):'<div style="font-size:11px;color:#94a3b8">실수 없음</div>'}
-    </div>
-    <div class="s">
-      <div class="stl">✅ 내 득점존 = 상대 약점 (${wins.filter(r=>r.Result==='Successful Win').length}회)</div>
-      ${wItems.length?barHTML(wItems,wMax,'#1d4ed8'):'<div style="font-size:11px;color:#94a3b8">데이터 없음</div>'}
-    </div>
-    <div class="s">
-      <div class="stl">⏱ 랠리 길이별 우리 실점률</div>
-      ${segHTML}
-      <div style="font-size:9px;color:#94a3b8;margin-top:4px">50% 이상 = 우리 불리 구간</div>
     </div>
     <div class="s">
       <div class="stl">🎯 리벤지 포인트</div>
