@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:#fff;width:390px}
+  .card{width:390px;min-height:844px;background:#fff;display:flex;flex-direction:column;overflow:visible}
+
+  /* 헤더 */
+  .hdr{background:#eff6ff;padding:10px 14px 8px;border-bottom:1px solid #bfdbfe}
+  .sub{font-size:7px;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:2px}
+  .name{font-size:28px;font-weight:900;color:#1e3a5f;line-height:1.1}
+  .info{font-size:11px;color:#64748b;margin-top:3px}
+  .badges{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+  .bg{font-size:10px;font-weight:800;padding:3px 9px;border-radius:20px}
+  .bg-w{background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8}
+  .bg-l{background:#fef2f2;border:1px solid #fecaca;color:#b91c1c}
+
+  /* KPI */
+  .kpi{display:flex;gap:6px;padding:9px 12px;background:#f8fafc;border-bottom:1px solid #e2e8f0}
+  .kc{flex:1;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:6px 4px;text-align:center}
+  .kl{font-size:8px;color:#64748b;font-weight:800;margin-bottom:2px}
+  .kv{font-size:18px;font-weight:900;line-height:1}
+
+  /* 섹션 */
+  .body{flex:1;padding:10px 12px;display:flex;flex-direction:column;gap:10px}
+  .s{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px 11px}
+  .stl{font-size:10px;font-weight:900;color:#475569;letter-spacing:.5px;margin-bottom:8px}
+
+  /* 바 차트 */
+  .br{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+  .bl{font-size:10px;font-weight:700;color:#334155;text-align:right;flex-shrink:0;width:110px}
+  .bt{flex:1;height:11px;background:#e2e8f0;border-radius:3px;overflow:hidden}
+  .bf{height:100%;border-radius:3px}
+  .bv{font-size:10px;font-weight:900;width:28px;text-align:right;flex-shrink:0}
+
+  /* 그리드 비교 */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .gtl{font-size:10px;font-weight:800;margin-bottom:6px}
+
+  /* 리벤지 포인트 */
+  .tip{display:flex;gap:8px;margin-bottom:8px;align-items:flex-start}
+  .tipn{width:18px;height:18px;border-radius:50%;background:#eff6ff;border:1px solid #bfdbfe;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#1d4ed8;flex-shrink:0}
+  .tipt{font-size:11px;font-weight:800;color:#1e293b;margin-bottom:1px}
+  .tipd{font-size:10px;color:#64748b}
+
+  /* 하단 */
+  .bot{height:8px;background:linear-gradient(90deg,#1d4ed8,#7c3aed);flex-shrink:0}
+</style>
+</head>
+<body>
+<div class="card" id="card">
+  <div class="hdr">
+    <div class="sub">🎯 상대 분석 · <span id="io">JPN</span></div>
+    <div class="name" id="ip1">야마구치 아카네</div>
+    <div class="info">vs <span id="ip2">안세영</span> · <span id="id">Indonesia Open 2026 결승</span></div>
+    <div class="badges" id="ds"></div>
+  </div>
+  <div class="kpi" id="dk"></div>
+  <div class="body" id="db"></div>
+  <div class="bot"></div>
+</div>
+
+<script>
+// ── 데이터 ───────────────────────────────────────────────────
+const CSV=`이름;위치;기간;피리어드;Rally;Result;Zone;실수 기술;ColorTag
+1set;1596;13800;1. 피리어드;1set;Away Successful Lose;앞사이드;;Color2
+1set;24848;3584;1. 피리어드;1set;Away Mistakes Win;;;Color2
+1set;38034;12634;1. 피리어드;1set;Away Successful Lose;앞앞;;Color2
+1set;61303;12585;1. 피리어드;1set;Successful Win;앞앞;;Color2
+1set;87807;16752;1. 피리어드;1set;Away Successful Lose;앞사이드;;Color2
+1set;118012;4601;1. 피리어드;1set;Mistake Lose;;Smash;Color2
+1set;134214;11935;1. 피리어드;1set;Mistake Lose;;ETC;Color2
+1set;157585;6034;1. 피리어드;1set;Successful Win;앞사이드;;Color2
+1set;177654;8368;1. 피리어드;1set;Successful Win;앞사이드;;Color2
+1set;203691;8585;1. 피리어드;1set;Away Successful Lose;뒤앞;;Color2
+1set;223193;7418;1. 피리어드;1set;Away Successful Lose;뒷사이드;;Color2
+1set;268717;16919;1. 피리어드;1set;Away Successful Lose;앞사이드;;Color2
+1set;301772;8252;1. 피리어드;1set;Successful Win;앞앞;;Color2
+1set;325309;5066;1. 피리어드;1set;Away Mistakes Win;;;Color2
+1set;339927;7202;1. 피리어드;1set;Successful Win;앞앞;;Color2
+1set;361330;19787;1. 피리어드;1set;Successful Win;앞사이드;;Color2
+1set;399003;6551;1. 피리어드;1set;Away Mistakes Win;;;Color2
+1set;416655;8969;1. 피리어드;1set;Away Successful Lose;앞앞;;Color2
+1set;436942;15203;1. 피리어드;1set;Away Mistakes Win;;;Color2
+1set;467029;13953;1. 피리어드;1set;Away Mistakes Win;;;Color2
+1set;541291;12068;1. 피리어드;1set;Successful Win;앞사이드;;Color2
+1set;578646;6749;1. 피리어드;1set;Away Successful Lose;앞사이드;;Color2
+1set;596699;18152;1. 피리어드;1set;Successful Win;앞앞;;Color2
+1set;635087;7035;1. 피리어드;1set;Away Successful Lose;옆옆;;Color2
+1set;655974;4717;1. 피리어드;1set;Away Successful Lose;앞앞;;Color2
+1set;672959;4667;1. 피리어드;1set;Away Successful Lose;앞사이드;;Color2
+1set;689779;5501;1. 피리어드;1set;Successful Win;앞사이드;;Color2
+1set;719866;13569;1. 피리어드;1set;Away Successful Lose;뒤뒤;;Color2
+1set;749471;5485;1. 피리어드;1set;Successful Win;앞사이드;;Color2
+1set;788861;5667;1. 피리어드;1set;Away Successful Lose;사이드뒤;;Color2
+1set;806013;7018;1. 피리어드;1set;Successful Win;앞사이드;;Color2
+1set;828366;8418;1. 피리어드;1set;Mistake Lose;;Smash;Color2
+1set;849669;10402;1. 피리어드;1set;Away Mistakes Win;;;Color2
+1set;877123;19770;1. 피리어드;1set;Successful Win;앞사이드;;Color2
+1set;916763;12751;1. 피리어드;1set;Away Successful Lose;옆옆;;Color2
+1set;965620;6334;1. 피리어드;1set;Away Mistakes Win;;;Color2
+1set;986906;7401;1. 피리어드;1set;Away Successful Lose;옆옆;;Color2
+1set;1005042;5984;1. 피리어드;1set;Successful Win;앞사이드;;Color2
+1set;1030412;5351;1. 피리어드;1set;Away Successful Lose;사이드뒤;;Color2
+1set;1047398;29688;1. 피리어드;1set;Mistake Lose;;Hairpin;Color2
+1set;1095789;10768;1. 피리어드;1set;Successful Win;앞뒤;;Color2
+1set;1128944;24554;1. 피리어드;1set;Mistake Lose;;ETC;Color2
+1set;1171866;5318;1. 피리어드;1set;Successful Win;앞사이드;;Color2
+1set;1196654;6635;1. 피리어드;1set;Successful Win;앞사이드;;Color2
+2set;1334674;21120;1. 피리어드;2set;Away Successful Lose;뒤앞;;Color2
+2set;1375763;15253;1. 피리어드;2set;Successful Win;뒤뒤;;Color2
+2set;1412318;6718;1. 피리어드;2set;Away Successful Lose;앞사이드;;Color2
+2set;1430371;8718;1. 피리어드;2set;Successful Win;앞사이드;;Color2
+2set;1461743;7684;1. 피리어드;2set;Away Mistakes Win;;;Color2
+2set;1482079;28504;1. 피리어드;2set;Away Successful Lose;앞사이드;;Color2
+2set;1526719;10502;1. 피리어드;2set;Away Successful Lose;사이드앞;;Color2
+2set;1561040;6185;1. 피리어드;2set;Successful Win;앞뒤;;Color2
+2set;1580760;7268;1. 피리어드;2set;Mistake Lose;;Return;Color2
+2set;1595879;6351;1. 피리어드;2set;Successful Win;뒷사이드;;Color2
+2set;1643552;7902;1. 피리어드;2set;Successful Win;뒷사이드;;Color2
+2set;1666706;16220;1. 피리어드;2set;Successful Win;앞사이드;;Color2
+2set;1699544;23854;1. 피리어드;2set;Away Successful Lose;앞앞;;Color2
+2set;1736483;12702;1. 피리어드;2set;Away Successful Lose;뒷사이드;;Color2
+2set;1763287;6468;1. 피리어드;2set;Successful Win;앞사이드;;Color2
+2set;1785295;20015;1. 피리어드;2set;Successful Win;앞앞;;Color2
+2set;1824046;8518;1. 피리어드;2set;Away Mistakes Win;;;Color2
+2set;1846032;24920;1. 피리어드;2set;Away Successful Lose;앞사이드;;Color2
+2set;1888821;15053;1. 피리어드;2set;Successful Win;앞앞;;Color2
+2set;1967234;5367;1. 피리어드;2set;Away Mistakes Win;;;Color2
+2set;1984135;11702;1. 피리어드;2set;Successful Win;앞사이드;;Color2
+2set;2024308;8452;1. 피리어드;2set;Away Successful Lose;앞사이드;;Color2
+2set;2051163;12636;1. 피리어드;2set;Successful Win;앞사이드;;Color2
+2set;2077167;8150;1. 피리어드;2set;Away Mistakes Win;;;Color2
+2set;2097286;7952;1. 피리어드;2set;Successful Win;뒤뒤;;Color2
+2set;2119190;17519;1. 피리어드;2set;Away Successful Lose;앞뒤;;Color2
+2set;2153477;19103;1. 피리어드;2set;Away Successful Lose;앞사이드;;Color2
+2set;2190300;5216;1. 피리어드;2set;Away Successful Lose;앞앞;;Color2
+2set;2209619;6668;1. 피리어드;2set;Successful Win;앞앞;;Color2
+2set;2234722;15536;1. 피리어드;2set;Away Mistakes Win;;;Color2
+2set;2273796;17719;1. 피리어드;2set;Away Mistakes Win;;;Color2
+2set;2307267;7885;1. 피리어드;2set;Successful Win;뒤뒤;;Color2
+2set;2328087;8334;1. 피리어드;2set;Away Mistakes Win;;;Color2`;
+
+// 존 매핑 (안세영 커스텀)
+const ZM={
+  '앞사이드':'앞-사이드(앞사각)','뒷사이드':'뒤-사이드(뒷사각)',
+  '앞앞':'앞-앞(헤어핀싸움)','옆옆':'옆-옆(중간볼)',
+  '사이드뒤':'사이드-뒤','뒤앞':'뒤-앞',
+  '앞뒤':'앞-뒤','사이드앞':'사이드-앞','뒤뒤':'뒤뒤',
+};
+const TM={
+  'Smash':'스매시','Return':'리턴','Hairpin':'헤어핀',
+  'ETC':'판단미스','Clear':'클리어','Drop':'드롭',
+};
+
+function pcsv(t){
+  const lines=t.trim().split('\n').filter(Boolean);
+  const delim=lines[0].includes(';')?';':',';
+  const h=lines[0].split(delim).map(x=>x.trim().replace(/^\uFEFF/,'').replace(/\r/g,''));
+  return lines.slice(1).map(s=>{
+    const v=s.split(delim).map(x=>x.trim().replace(/\r/g,''));
+    const o={};h.forEach((k,i)=>o[k]=v[i]||'');
+    const m=o['이름']?.match(/(\d+set)/);if(m)o['이름']=m[1];
+    if(o['Zone']&&ZM[o['Zone']])o['Zone']=ZM[o['Zone']];
+    if(o['실수 기술']&&TM[o['실수 기술']])o['실수 기술']=TM[o['실수 기술']];
+    if(o.Result==='Away Mistake Win')o.Result='Away Mistakes Win';
+    // 단식_an 커스텀 존 매핑
+    const ZM={'앞사이드':'앞-사이드(앞사각)','뒷사이드':'뒤-사이드(뒷사각)',
+      '앞앞':'앞-앞(헤어핀싸움)','옆옆':'옆-옆(중간볼)',
+      '사이드뒤':'사이드-뒤','뒤앞':'뒤-앞',
+      '앞뒤':'앞-뒤','사이드앞':'사이드-앞','뒤뒤':'뒤뒤'};
+    if(o['Zone']&&ZM[o['Zone']])o['Zone']=ZM[o['Zone']];
+    return o;
+  });
+}
+
+const W=r=>r.Result?.toLowerCase().includes('win');
+const L=r=>r.Result?.toLowerCase().includes('lose');
+
+// ── 렌더 ─────────────────────────────────────────────────────
+function render(){
+  const data=pcsv(CSV);
+  const opp=document.getElementById('ip1').value;
+  const me =document.getElementById('ip2').value;
+  const dt =document.getElementById('id').value;
+
+  const wins =data.filter(r=>W(r));  // 내 득점 = 상대 실점
+  const loses=data.filter(r=>L(r));  // 내 실점 = 상대 득점
+
+  // 세트별 배지
+  const SETC={'1set':'#1d4ed8','2set':'#7c3aed','3set':'#b45309'};
+  const sets=[...new Set(data.map(r=>r['이름']).filter(Boolean))].sort();
+  const ss=sets.map(s=>{
+    const sr=data.filter(r=>r['이름']===s);
+    const sw=sr.filter(W).length,sl=sr.filter(L).length;
+    return{s,w:sw,l:sl};
+  });
+  document.getElementById('ds').innerHTML=ss.map(x=>{
+    const win=x.w>x.l;
+    return`<div class="bg ${win?'bg-w':'bg-l'}">${x.s} ${x.w}-${x.l}</div>`;
+  }).join('');
+
+  // KPI
+  const avgL=loses.length?loses.reduce((s,r)=>s+parseFloat(r['기간']||0),0)/loses.length/1000:0;
+  const avgW=wins.length?wins.reduce((s,r)=>s+parseFloat(r['기간']||0),0)/wins.length/1000:0;
+  const asl=loses.filter(r=>r.Result==='Away Successful Lose');
+  const ml=loses.filter(r=>r.Result==='Mistake Lose');
+  document.getElementById('dk').innerHTML=[
+    {l:'득점 평균 랠리',v:avgL.toFixed(1)+'초',c:'#b91c1c'},
+    {l:'실점 평균 랠리',v:avgW.toFixed(1)+'초',c:'#1d4ed8'},
+    {l:'성공 득점',v:Math.round(asl.length/loses.length*100)+'%',c:'#b91c1c'},
+    {l:'실수 유도',v:Math.round(ml.length/loses.length*100)+'%',c:'#7c3aed'},
+  ].map(k=>`<div class="kc"><div class="kl">${k.l}</div><div class="kv" style="color:${k.c}">${k.v}</div></div>`).join('');
+
+  // 바 차트 함수
+  function barHTML(items,mx,color){
+    return items.map(([l,v,p])=>`<div class="br">
+      <div class="bl">${l}</div>
+      <div class="bt"><div class="bf" style="width:${Math.round(p/mx*100)}%;background:${color}"></div></div>
+      <div class="bv" style="color:${color}">${p}%</div>
+    </div>`).join('');
+  }
+
+  // 상대 득점존
+  const zoneCount={};
+  asl.forEach(r=>{const z=r['Zone']||'';if(z)zoneCount[z]=(zoneCount[z]||0)+1;});
+  const zTotal=asl.length||1;
+  const zItems=Object.entries(zoneCount).sort((a,b)=>b[1]-a[1]).slice(0,5)
+    .map(([z,v])=>[z,v,Math.round(v/zTotal*100)]);
+  const zMax=zItems[0]?zItems[0][2]:1;
+
+  // 상대 실수 유도
+  const techCount={};
+  ml.forEach(r=>{const t=r['실수 기술']||'';if(t)techCount[t]=(techCount[t]||0)+1;});
+  const tTotal=ml.length||1;
+  const tItems=Object.entries(techCount).sort((a,b)=>b[1]-a[1])
+    .map(([t,v])=>[t,v,Math.round(v/tTotal*100)]);
+  const tMax=tItems[0]?tItems[0][2]:1;
+
+  // 내 득점존 (상대 약점)
+  const wZone={};
+  wins.filter(r=>r.Result==='Successful Win').forEach(r=>{const z=r['Zone']||'';if(z)wZone[z]=(wZone[z]||0)+1;});
+  const wTotal=wins.filter(r=>r.Result==='Successful Win').length||1;
+  const wItems=Object.entries(wZone).sort((a,b)=>b[1]-a[1]).slice(0,5)
+    .map(([z,v])=>[z,v,Math.round(v/wTotal*100)]);
+  const wMax=wItems[0]?wItems[0][2]:1;
+
+  // 구간별 상대 득점률
+  const segs=[
+    ['~5초',   r=>parseFloat(r['기간']||0)/1000<=5],
+    ['5~15초',  r=>{const s=parseFloat(r['기간']||0)/1000;return s>5&&s<=15;}],
+    ['15초+',   r=>parseFloat(r['기간']||0)/1000>15],
+  ];
+  const segHTML=segs.map(([l,fn])=>{
+    const g=data.filter(fn);
+    const gL=g.filter(r=>L(r)).length;
+    const gW=g.filter(r=>W(r)).length;
+    const t=gL+gW;
+    const pct=t?Math.round(gL/t*100):0;
+    const danger=pct>=50;
+    return`<div class="br">
+      <div class="bl">${l} (${t})</div>
+      <div class="bt"><div class="bf" style="width:${pct}%;background:${danger?'#b91c1c':'#1d4ed8'}"></div></div>
+      <div class="bv" style="color:${danger?'#b91c1c':'#1d4ed8'}">${pct}%</div>
+    </div>`;
+  }).join('');
+
+  // 리벤지 포인트
+  const topZone=zItems[0]?zItems[0][0]:'앞사각';
+  const tips=[
+    [`${topZone} 수비 집중`, `상대 득점 ${zItems[0]?zItems[0][2]:0}% 집중 구간`],
+    [`${avgL.toFixed(1)}초 이내 마무리`, `상대 득점 평균 랠리 — 더 짧게 끝낼수록 유리`],
+    [tItems[0]?`${tItems[0][0]} 실수 주의`:'실수 최소화', `상대 유도 실수 ${tItems[0]?tItems[0][2]:0}% 집중`],
+    [wItems[0]?`${wItems[0][0]} 공략`:'앞코트 공략', `내 득점존 1위 — 상대 약점`],
+  ];
+
+  document.getElementById('db').innerHTML=`
+    <div class="s">
+      <div class="stl">📍 상대 득점존 (성공 ${asl.length}회)</div>
+      ${zItems.length?barHTML(zItems,zMax,'#b91c1c'):'<div style="font-size:11px;color:#94a3b8">데이터 없음</div>'}
+    </div>
+    <div class="s">
+      <div class="stl">⚠️ 상대 유도 실수 (${ml.length}회)</div>
+      ${tItems.length?barHTML(tItems,tMax,'#7c3aed'):'<div style="font-size:11px;color:#94a3b8">실수 없음</div>'}
+    </div>
+    <div class="s">
+      <div class="stl">✅ 내 득점존 = 상대 약점 (${wins.filter(r=>r.Result==='Successful Win').length}회)</div>
+      ${wItems.length?barHTML(wItems,wMax,'#1d4ed8'):'<div style="font-size:11px;color:#94a3b8">데이터 없음</div>'}
+    </div>
+    <div class="s">
+      <div class="stl">⏱ 랠리 길이별 우리 실점률</div>
+      ${segHTML}
+      <div style="font-size:9px;color:#94a3b8;margin-top:4px">50% 이상 = 우리 불리 구간</div>
+    </div>
+    <div class="s">
+      <div class="stl">🎯 리벤지 포인트</div>
+      ${tips.map(([t,d],i)=>`<div class="tip">
+        <div class="tipn">${i+1}</div>
+        <div><div class="tipt">${t}</div><div class="tipd">${d}</div></div>
+      </div>`).join('')}
+    </div>`;
+}
+
+render();
+</script>
+</body>
+</html>
