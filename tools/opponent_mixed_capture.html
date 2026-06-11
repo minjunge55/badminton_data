@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:#fff;width:390px}
+  .card{width:390px;min-height:844px;background:#fff;display:flex;flex-direction:column;overflow:visible}
+  .hdr{background:#eff6ff;padding:10px 14px 8px;border-bottom:1px solid #bfdbfe}
+  .sub{font-size:7px;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:2px}
+  .name{font-size:26px;font-weight:900;color:#1e3a5f;line-height:1.1}
+  .info{font-size:11px;color:#64748b;margin-top:3px}
+  .badges{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+  .bg{font-size:10px;font-weight:800;padding:3px 9px;border-radius:20px}
+  .bg-w{background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8}
+  .bg-l{background:#fef2f2;border:1px solid #fecaca;color:#b91c1c}
+  .kpi{display:flex;gap:6px;padding:9px 12px;background:#f8fafc;border-bottom:1px solid #e2e8f0}
+  .kc{flex:1;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:6px 4px;text-align:center}
+  .kl{font-size:8px;color:#64748b;font-weight:800;margin-bottom:2px}
+  .kv{font-size:18px;font-weight:900;line-height:1}
+  .body{flex:1;padding:10px 12px;display:flex;flex-direction:column;gap:10px}
+  .s{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px 11px}
+  .stl{font-size:10px;font-weight:900;color:#475569;letter-spacing:.5px;margin-bottom:8px}
+  .br{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+  .bl{font-size:10px;font-weight:700;color:#334155;text-align:right;flex-shrink:0;width:90px}
+  .bt{flex:1;height:11px;background:#e2e8f0;border-radius:3px;overflow:hidden}
+  .bf{height:100%;border-radius:3px}
+  .bv{font-size:10px;font-weight:900;width:28px;text-align:right;flex-shrink:0}
+  .tip{display:flex;gap:8px;margin-bottom:8px;align-items:flex-start}
+  .tipn{width:18px;height:18px;border-radius:50%;background:#eff6ff;border:1px solid #bfdbfe;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#1d4ed8;flex-shrink:0;margin-top:1px}
+  .tipt{font-size:11px;font-weight:800;color:#1e293b;margin-bottom:1px}
+  .tipd{font-size:10px;color:#64748b}
+  .tip-edit{font-size:10px;color:#94a3b8;font-style:italic;margin-top:2px}
+  .bot{height:8px;background:linear-gradient(90deg,#1d4ed8,#7c3aed);flex-shrink:0}
+  /* 편집 가능 */
+  [contenteditable]{outline:none;cursor:text}
+  [contenteditable]:hover{background:rgba(59,130,246,0.06);border-radius:4px}
+</style>
+</head>
+<body>
+<div class="card" id="card">
+  <div class="hdr">
+    <div class="sub">🎯 상대 분석</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">
+      <span style="font-size:11px;font-weight:800;background:#1d4ed8;color:#fff;padding:2px 8px;border-radius:12px" id="io" contenteditable>MAS</span>
+      <div class="name" id="ip1" contenteditable style="font-size:24px">GOH/IZZUDDIN</div>
+    </div>
+    <div class="info">vs <span id="ip2" contenteditable>서승재/김원호</span> · <span id="id" contenteditable>Indonesia Open 2026 준결</span></div>
+    <div class="badges" id="ds"></div>
+  </div>
+  <div class="kpi" id="dk"></div>
+  <div class="body" id="db"></div>
+  <div class="bot"></div>
+</div>
+
+<script>
+const CSV=`이름;위치;기간;피리어드;Rally;Result;득점유형;Player;실수 기술;상대성공실점;ColorTag
+PLACEHOLDER`;
+
+const W=r=>r.Result?.toLowerCase().includes('win');
+const L=r=>r.Result?.toLowerCase().includes('lose');
+
+function pcsv(t){
+  const lines=t.trim().split('\n').filter(Boolean);
+  const delim=lines[0].includes(';')?';':',';
+  const h=lines[0].split(delim).map(x=>x.trim().replace(/^\uFEFF/,'').replace(/\r/g,''));
+  return lines.slice(1).map(s=>{
+    const v=s.split(delim).map(x=>x.trim().replace(/\r/g,''));
+    const o={};h.forEach((k,i)=>o[k]=v[i]||'');
+    const m=o['이름']?.match(/(\d+set)/);if(m)o['이름']=m[1];
+    if(o['Home player']!==undefined){o['Player']=o['Home player'];}
+    if(o['Technics']!==undefined){o['실수 기술']=o['Technics'];}
+    const sc={'공격상황':'공격','드라이브상황':'중간볼','초구상황':'초구','수비전환상황':'수비'};
+    const lc={'수비상황':'수비','드라이브상황':'중간볼','초구상황':'초구'};
+    if(o['득점상황']!==undefined)o['득점유형']=sc[o['득점상황']]||o['득점상황'];
+    if(o['실점상황']!==undefined)o['상대성공실점']=lc[o['실점상황']]||o['실점상황'];
+    if(o.Result==='Away Mistake Win')o.Result='Away Mistakes Win';
+    return o;
+  });
+}
+
+function render(){
+  const data=pcsv(CSV);
+  const wins=data.filter(W);   // 우리 득점 = 상대 실점
+  const loses=data.filter(L);  // 우리 실점 = 상대 득점
+
+  // 세트 배지
+  const sets=[...new Set(data.map(r=>r['이름']).filter(Boolean))].sort();
+  const SETC={'1set':'#1d4ed8','2set':'#7c3aed','3set':'#b45309'};
+  document.getElementById('ds').innerHTML=sets.map(s=>{
+    const sr=data.filter(r=>r['이름']===s);
+    const sw=sr.filter(W).length,sl=sr.filter(L).length;
+    return`<div class="bg ${sw>sl?'bg-w':'bg-l'}">${s} ${sw}-${sl}</div>`;
+  }).join('');
+
+  // KPI
+  const avgL=loses.length?loses.reduce((s,r)=>s+parseFloat(r['기간']||0),0)/loses.length/1000:0;
+  const avgW=wins.length?wins.reduce((s,r)=>s+parseFloat(r['기간']||0),0)/wins.length/1000:0;
+  document.getElementById('dk').innerHTML=[
+    {l:'상대 득점 평균',v:avgL.toFixed(1)+'초',c:'#b91c1c'},
+    {l:'상대 실점 평균',v:avgW.toFixed(1)+'초',c:'#1d4ed8'},
+    {l:'상대 득점률',v:loses.length+wins.length?Math.round(loses.length/(loses.length+wins.length)*100)+'%':'-',c:'#7c3aed'},
+    {l:'총 랠리',v:data.length+'회',c:'#334155'},
+  ].map(k=>`<div class="kc"><div class="kl">${k.l}</div><div class="kv" style="color:${k.c}">${k.v}</div></div>`).join('');
+
+  // 득점/실점 상황
+  const dtCount={}, ltCount={};
+  wins.forEach(r=>{const t=r['득점유형']||'';if(t)dtCount[t]=(dtCount[t]||0)+1;});
+  loses.forEach(r=>{const t=r['상대성공실점']||'';if(t)ltCount[t]=(ltCount[t]||0)+1;});
+  const dtTotal=Object.values(dtCount).reduce((a,b)=>a+b,0)||1;
+  const ltTotal=Object.values(ltCount).reduce((a,b)=>a+b,0)||1;
+  const dtMax=Math.max(...Object.values(dtCount),1);
+  const ltMax=Math.max(...Object.values(ltCount),1);
+  function situBar(obj,total,mx,color){
+    return Object.entries(obj).sort((a,b)=>b[1]-a[1]).map(([k,v])=>{
+      const pct=Math.round(v/total*100);
+      return`<div class="br" style="margin-bottom:5px">
+        <div class="bl" style="width:60px;font-size:9px">${k}</div>
+        <div class="bt"><div class="bf" style="width:${Math.round(v/mx*100)}%;background:${color}"></div></div>
+        <div class="bv" style="font-size:9px;color:${color}">${pct}%</div>
+      </div>`;
+    }).join('');
+  }
+  const situHTML=`<div class="s">
+    <div class="stl" style="margin-bottom:10px">📊 득점 상황 / 실점 상황</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div>
+        <div style="font-size:9px;font-weight:800;color:#1d4ed8;margin-bottom:6px">우리 득점 상황</div>
+        ${dtTotal>0?situBar(dtCount,dtTotal,dtMax,'#1d4ed8'):'<div style="font-size:10px;color:#94a3b8">데이터 없음</div>'}
+      </div>
+      <div>
+        <div style="font-size:9px;font-weight:800;color:#b91c1c;margin-bottom:6px">상대 득점 상황</div>
+        ${ltTotal>0?situBar(ltCount,ltTotal,ltMax,'#b91c1c'):'<div style="font-size:10px;color:#94a3b8">데이터 없음</div>'}
+      </div>
+    </div>
+  </div>`;
+
+  // 구간별 상대 득점률
+  const segs=[
+    ['~5초',   r=>parseFloat(r['기간']||0)/1000<=5],
+    ['5~15초',  r=>{const s=parseFloat(r['기간']||0)/1000;return s>5&&s<=15;}],
+    ['15초+',   r=>parseFloat(r['기간']||0)/1000>15],
+  ];
+  const segHTML=segs.map(([l,fn])=>{
+    const g=data.filter(fn);
+    const gL=g.filter(L).length, gW=g.filter(W).length, t=gL+gW;
+    if(!t)return'';
+    const pct=Math.round(gL/t*100);
+    const c=pct>=50?'#b91c1c':'#1d4ed8';
+    return`<div class="br">
+      <div class="bl">${l} (${t}회)</div>
+      <div class="bt"><div class="bf" style="width:${pct}%;background:${c}"></div></div>
+      <div class="bv" style="color:${c}">${pct}%</div>
+    </div>`;
+  }).join('');
+
+  // 세트별 평균 랠리
+  const setHTML=sets.map(s=>{
+    const sr=data.filter(r=>r['이름']===s);
+    const sw=sr.filter(W),sl=sr.filter(L);
+    const wa=sw.length?sw.reduce((a,r)=>a+parseFloat(r['기간']||0),0)/sw.length/1000:0;
+    const la=sl.length?sl.reduce((a,r)=>a+parseFloat(r['기간']||0),0)/sl.length/1000:0;
+    const max=Math.max(wa,la,1);
+    const c=SETC[s]||'#64748b';
+    return`<div style="margin-bottom:8px">
+      <div style="font-size:10px;font-weight:800;color:${c};margin-bottom:4px">${s}</div>
+      <div class="br" style="margin-bottom:3px">
+        <div class="bl" style="color:#f87171">상대 득점</div>
+        <div class="bt"><div class="bf" style="width:${la/max*100}%;background:#b91c1c"></div></div>
+        <div class="bv" style="color:#f87171">${la.toFixed(1)}초</div>
+      </div>
+      <div class="br">
+        <div class="bl" style="color:#60a5fa">상대 실점</div>
+        <div class="bt"><div class="bf" style="width:${wa/max*100}%;background:#1d4ed8"></div></div>
+        <div class="bv" style="color:#60a5fa">${wa.toFixed(1)}초</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // 리벤지 포인트 (편집 가능)
+  const tips=[
+    ['포인트 1','여기에 직접 입력하세요'],
+    ['포인트 2','여기에 직접 입력하세요'],
+    ['포인트 3','여기에 직접 입력하세요'],
+    ['포인트 4','여기에 직접 입력하세요'],
+  ];
+
+  document.getElementById('db').innerHTML=situHTML+`
+    <div class="s">
+      <div class="stl">⏱ 랠리 길이별 우리 실점률</div>
+      ${segHTML}
+      <div style="font-size:9px;color:#94a3b8;margin-top:4px">50% 이상 = 우리 불리 구간</div>
+    </div>
+    <div class="s">
+      <div class="stl">🎯 리벤지 포인트</div>
+      ${tips.map(([t,d],i)=>`<div class="tip">
+        <div class="tipn">${i+1}</div>
+        <div style="flex:1">
+          <div class="tipt" contenteditable>${t}</div>
+          <div class="tipd" contenteditable>${d}</div>
+        </div>
+      </div>`).join('')}
+      <div class="tip-edit">✏️ 위 내용을 클릭해서 직접 편집하세요</div>
+    </div>`;
+}
+
+render();
+</script>
+</body>
+</html>
