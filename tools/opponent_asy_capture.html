@@ -272,18 +272,14 @@ function render(){
   const tips=[
     [`${topZone} 수비 집중`, `상대 득점 ${zItems[0]?zItems[0][2]:0}% 집중 구간`],
     [`${avgL.toFixed(1)}초 이내 마무리`, `상대 득점 평균 랠리 — 더 짧게 끝낼수록 유리`],
-    [tItems[0]?`${tItems[0][0]} 실수 주의`:'실수 최소화', `상대 유도 실수 ${tItems[0]?tItems[0][2]:0}% 집중`],
     [wItems[0]?`${wItems[0][0]} 공략`:'앞코트 공략', `내 득점존 1위 — 상대 약점`],
+    ['포인트 4', '직접 입력하세요'],
   ];
 
   document.getElementById('db').innerHTML=`
     <div class="s">
       <div class="stl">📍 상대 득점존 (성공 ${asl.length}회)</div>
       ${zItems.length?barHTML(zItems,zMax,'#b91c1c'):'<div style="font-size:11px;color:#94a3b8">데이터 없음</div>'}
-    </div>
-    <div class="s">
-      <div class="stl">⚠️ 상대 유도 실수 (${ml.length}회)</div>
-      ${tItems.length?barHTML(tItems,tMax,'#7c3aed'):'<div style="font-size:11px;color:#94a3b8">실수 없음</div>'}
     </div>
     <div class="s">
       <div class="stl">✅ 내 득점존 = 상대 약점 (${wins.filter(r=>r.Result==='Successful Win').length}회)</div>
