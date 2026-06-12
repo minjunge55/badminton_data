@@ -18,10 +18,12 @@ def build_html(csv_path, opp, p1, p2, country, detail):
         except: continue
     csv_escaped = text.replace('`','\\`').replace('${','\\${')
     html = re.sub(r'const CSV=`[\s\S]*?`;', f'const CSV=`{csv_escaped}`;', html)
-    html = html.replace('>고이주딘<',      f'>{opp}<')
-    html = html.replace('>서승재/김원호<', f'>{p1}/{p2}<')
-    html = html.replace('>MAS<',           f'>{country}<')
-    html = html.replace('>Indonesia Open 2026 준결<', f'>{detail}<')
+    # contenteditable 텍스트 교체
+    import re as _re
+    html = _re.sub(r'(id="ip1"[^>]*>)[^<]*(</)', lambda m: m.group(1)+opp+m.group(2), html)
+    html = _re.sub(r'(id="ip2"[^>]*>)[^<]*(</)', lambda m: m.group(1)+p1+'/'+p2+m.group(2), html)
+    html = _re.sub(r'(id="io"[^>]*>)[^<]*(</)', lambda m: m.group(1)+country+m.group(2), html)
+    html = _re.sub(r'(id="id"[^>]*>)[^<]*(</)', lambda m: m.group(1)+detail+m.group(2), html)
     return html
 
 def screenshot(html, out_path):
