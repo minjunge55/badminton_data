@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:#fff;width:390px}
+  body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:#fff}
   .card{width:390px;min-height:844px;background:#fff;display:flex;flex-direction:column;overflow:visible}
   .hdr{background:#eff6ff;padding:10px 14px 8px;border-bottom:1px solid #bfdbfe}
   .sub{font-size:7px;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:2px}
@@ -22,23 +22,40 @@
   .s{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px 11px}
   .stl{font-size:10px;font-weight:900;color:#475569;letter-spacing:.5px;margin-bottom:8px}
   .br{display:flex;align-items:center;gap:6px;margin-bottom:6px}
-  .bl{font-size:10px;font-weight:700;color:#334155;text-align:right;flex-shrink:0;width:80px}
+  .bl{font-size:10px;font-weight:700;color:#334155;text-align:right;flex-shrink:0;width:100px}
   .bt{flex:1;height:11px;background:#e2e8f0;border-radius:3px;overflow:hidden}
   .bf{height:100%;border-radius:3px}
   .bv{font-size:10px;font-weight:900;width:28px;text-align:right;flex-shrink:0}
   .bot{height:8px;background:linear-gradient(90deg,#1d4ed8,#7c3aed);flex-shrink:0}
+  .pat-grid{display:flex;flex-direction:column;gap:12px}
+  .pat-item{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:8px}
+  .pat-rank{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+  .pat-n{width:20px;height:20px;border-radius:50%;background:#1d4ed8;color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center}
+  .pat-seq{font-size:11px;font-weight:800;color:#1e293b}
+  .pat-cnt{font-size:10px;font-weight:800;color:#b91c1c;margin-left:auto}
 </style>
 </head>
 <body>
-<div class="card" id="card">
+
+<div class="card" id="card1">
   <div class="hdr">
-    <div class="sub">🏸 랠리 패턴 분석 · <span id="io">국내</span></div>
-    <div class="name" id="ip1">배 vs 이</div>
-    <div class="info"><span id="id">국내 테스트</span></div>
-    <div class="badges" id="ds"></div>
+    <div class="sub">🏸 랠리 패턴 분석 1/2 · <span id="io1">국내</span></div>
+    <div class="name" id="ip1a">배 vs 이</div>
+    <div class="info"><span id="id1">국내 테스트</span></div>
+    <div class="badges" id="ds1"></div>
   </div>
-  <div class="kpi" id="dk"></div>
-  <div class="body" id="db"></div>
+  <div class="kpi" id="dk1"></div>
+  <div class="body" id="db1"></div>
+  <div class="bot"></div>
+</div>
+
+<div class="card" id="card2">
+  <div class="hdr">
+    <div class="sub">🏸 랠리 패턴 분석 2/2 · <span id="io2">국내</span></div>
+    <div class="name" id="ip1b">배 vs 이</div>
+    <div class="info"><span id="id2">국내 테스트</span></div>
+  </div>
+  <div class="body" id="db2"></div>
   <div class="bot"></div>
 </div>
 
@@ -49,10 +66,12 @@ PLACEHOLDER`;
 const W=r=>r.Result?.toLowerCase().includes('win');
 const L=r=>r.Result?.toLowerCase().includes('lose');
 
-// Zone 좌표: ROWS=[[2,7,1],[6,8,5],[4,9,3]] (col 0~2, row 0~2)
 const ROWS=[[2,7,1],[6,8,5],[4,9,3]];
 const ZPOS={};
 ROWS.forEach((row,ri)=>row.forEach((z,ci)=>{ZPOS[z]={col:ci,row:ri};}));
+
+const TM={'Smash':'스매시','Clear':'클리어','Drop':'드롭','Hairpin':'헤어핀','Drive':'드라이브','Cut':'커트','Push':'푸시','Return':'리턴','ETC':'판단미스','숏서브 리시브':'숏서브리시브','롱서브 리시브':'롱서브리시브','숏서브':'숏서브','S.Drive':'숏드라이브','Block':'블록','cross':'크로스'};
+const DM={'Left':'왼쪽','Right':'오른쪽','Middle':'가운데'};
 
 function pcsv(t){
   const lines=t.trim().split('\n').filter(Boolean);
@@ -67,94 +86,56 @@ function pcsv(t){
   });
 }
 
-// ── 코트 그리기 + 랠리 패턴 화살표 ──────────────────────────────
-function COURT_PATTERN(patterns){
-  // patterns: [{seq:['3A','2B','2A'], result:'lose'}, ...]
-  const W=320, courtW=260, ox=(W-courtW)/2;
-  const halfH=170, netY=40, courtTop=netY, courtBot=netY+halfH*2;
-  const H=courtBot+30;
+function singleCourt(seq, rank){
+  const W=300, courtW=240, ox=(W-courtW)/2;
+  const halfH=120, netY=34;
+  const courtTop=netY, courtBot=netY+halfH*2;
+  const H=courtBot+26;
   const cellW=courtW/3, cellH=halfH/3;
 
-  // 좌표 계산: zone+side(A=하단/우리, B=상단/상대)
   function coord(zoneStr){
     const m=zoneStr.match(/(\d+)([AB])/);
     if(!m)return null;
-    const z=parseInt(m[1]), side=m[2];
-    const p=ZPOS[z];
+    const z=parseInt(m[1]),side=m[2],p=ZPOS[z];
     if(!p)return null;
     const cx=ox+p.col*cellW+cellW/2;
-    let cy;
-    if(side==='A'){ // 우리 코트 (하단) - row 0=네트쪽
-      cy=netY+halfH+p.row*cellH+cellH/2;
-    }else{ // 상대 코트 (상단) - row 0=네트쪽이므로 뒤집기
-      cy=netY+halfH-(p.row*cellH+cellH/2);
-    }
-    return {x:cx,y:cy};
+    let cy = side==='A' ? netY+halfH+p.row*cellH+cellH/2 : netY+halfH-(p.row*cellH+cellH/2);
+    return{x:cx,y:cy};
   }
 
-  // 코트 라인
   let court='';
-  // 전체 코트 외곽
-  court+=`<rect x="${ox}" y="${courtTop}" width="${courtW}" height="${halfH*2}" fill="#f0fdf4" stroke="#1e293b" stroke-width="2" rx="2"/>`;
-  // 네트
-  court+=`<line x1="${ox-5}" y1="${netY+halfH}" x2="${ox+courtW+5}" y2="${netY+halfH}" stroke="#0f172a" stroke-width="3"/>`;
-  court+=`<text x="${ox+courtW/2}" y="${netY+halfH-4}" text-anchor="middle" font-size="8" font-weight="900" fill="#0f172a" font-family="inherit" letter-spacing="1">— NET —</text>`;
-  // 세로 분할
-  for(let c=1;c<3;c++){
-    court+=`<line x1="${ox+c*cellW}" y1="${courtTop}" x2="${ox+c*cellW}" y2="${courtBot}" stroke="#94a3b8" stroke-width="0.8" stroke-dasharray="4,3"/>`;
-  }
-  // 가로 분할 (각 코트 3등분)
+  court+=`<rect x="${ox}" y="${courtTop}" width="${courtW}" height="${halfH*2}" fill="#f0fdf4" stroke="#1e293b" stroke-width="1.5" rx="2"/>`;
+  court+=`<line x1="${ox-4}" y1="${netY+halfH}" x2="${ox+courtW+4}" y2="${netY+halfH}" stroke="#0f172a" stroke-width="2.5"/>`;
+  court+=`<text x="${ox+courtW/2}" y="${netY+halfH-3}" text-anchor="middle" font-size="6" font-weight="900" fill="#0f172a" font-family="inherit">NET</text>`;
+  for(let c=1;c<3;c++)court+=`<line x1="${ox+c*cellW}" y1="${courtTop}" x2="${ox+c*cellW}" y2="${courtBot}" stroke="#94a3b8" stroke-width="0.6" stroke-dasharray="3,3"/>`;
   for(let r=1;r<3;r++){
-    court+=`<line x1="${ox}" y1="${netY+r*cellH}" x2="${ox+courtW}" y2="${netY+r*cellH}" stroke="#94a3b8" stroke-width="0.6" stroke-dasharray="3,3"/>`;
-    court+=`<line x1="${ox}" y1="${netY+halfH+r*cellH}" x2="${ox+courtW}" y2="${netY+halfH+r*cellH}" stroke="#94a3b8" stroke-width="0.6" stroke-dasharray="3,3"/>`;
+    court+=`<line x1="${ox}" y1="${netY+r*cellH}" x2="${ox+courtW}" y2="${netY+r*cellH}" stroke="#94a3b8" stroke-width="0.5" stroke-dasharray="2,3"/>`;
+    court+=`<line x1="${ox}" y1="${netY+halfH+r*cellH}" x2="${ox+courtW}" y2="${netY+halfH+r*cellH}" stroke="#94a3b8" stroke-width="0.5" stroke-dasharray="2,3"/>`;
   }
-  // 코트 라벨
-  court+=`<rect x="${ox}" y="${courtTop-18}" width="${courtW}" height="15" rx="3" fill="#fee2e2"/><text x="${ox+courtW/2}" y="${courtTop-7}" text-anchor="middle" font-size="9" font-weight="900" fill="#b91c1c" font-family="inherit">상대 코트 (B)</text>`;
-  court+=`<rect x="${ox}" y="${courtBot+3}" width="${courtW}" height="15" rx="3" fill="#dbeafe"/><text x="${ox+courtW/2}" y="${courtBot+14}" text-anchor="middle" font-size="9" font-weight="900" fill="#1d4ed8" font-family="inherit">우리 코트 (A)</text>`;
+  court+=`<text x="${ox+courtW/2}" y="${courtTop-4}" text-anchor="middle" font-size="7" font-weight="900" fill="#b91c1c" font-family="inherit">상대(B)</text>`;
+  court+=`<text x="${ox+courtW/2}" y="${courtBot+12}" text-anchor="middle" font-size="7" font-weight="900" fill="#1d4ed8" font-family="inherit">우리(A)</text>`;
 
-  // 화살표 (곡선) - 빈도 집계
-  const edges={};
-  patterns.forEach(p=>{
-    const seq=p.seq;
-    for(let i=0;i<seq.length-1;i++){
-      const key=seq[i]+'>'+seq[i+1];
-      edges[key]=(edges[key]||0)+1;
-    }
-  });
-  const maxE=Math.max(...Object.values(edges),1);
-
+  let defs=`<defs><marker id="ar${rank}" markerWidth="7" markerHeight="7" refX="5" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 Z" fill="#475569"/></marker></defs>`;
   let arrows='';
-  let defs='<defs>';
-  let idx=0;
-  Object.entries(edges).forEach(([key,cnt])=>{
-    const [from,to]=key.split('>');
-    const c1=coord(from), c2=coord(to);
-    if(!c1||!c2)return;
-    const w=1+cnt/maxE*4;
-    const opacity=0.35+cnt/maxE*0.5;
-    // 곡선 제어점 (살짝 휘게)
-    const mx=(c1.x+c2.x)/2, my=(c1.y+c2.y)/2;
-    const dx=c2.x-c1.x, dy=c2.y-c1.y;
-    const len=Math.sqrt(dx*dx+dy*dy)||1;
-    const offset=Math.min(len*0.2,25);
-    const cpx=mx-dy/len*offset, cpy=my+dx/len*offset;
-    const col=cnt>=maxE*0.6?'#b91c1c':cnt>=maxE*0.3?'#ea580c':'#f59e0b';
-    const mid='arrow'+idx;
-    defs+=`<marker id="${mid}" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="${col}"/></marker>`;
-    arrows+=`<path d="M${c1.x.toFixed(1)},${c1.y.toFixed(1)} Q${cpx.toFixed(1)},${cpy.toFixed(1)} ${c2.x.toFixed(1)},${c2.y.toFixed(1)}" fill="none" stroke="${col}" stroke-width="${w.toFixed(1)}" opacity="${opacity.toFixed(2)}" marker-end="url(#${mid})"/>`;
-    idx++;
-  });
-  defs+='</defs>';
-
-  // 시작점/끝점 원
-  const starts={}, ends={};
-  patterns.forEach(p=>{
-    if(p.seq.length){starts[p.seq[0]]=(starts[p.seq[0]]||0)+1;ends[p.seq[p.seq.length-1]]=(ends[p.seq[p.seq.length-1]]||0)+1;}
-  });
+  const cols=['#3b82f6','#f59e0b','#b91c1c','#7c3aed'];
+  for(let i=0;i<seq.length-1;i++){
+    const c1=coord(seq[i]),c2=coord(seq[i+1]);
+    if(!c1||!c2)continue;
+    const mx=(c1.x+c2.x)/2,my=(c1.y+c2.y)/2;
+    const dx=c2.x-c1.x,dy=c2.y-c1.y,len=Math.sqrt(dx*dx+dy*dy)||1;
+    const off=Math.min(len*0.22,18);
+    const cpx=mx-dy/len*off,cpy=my+dx/len*off;
+    const col=cols[i%cols.length];
+    arrows+=`<path d="M${c1.x.toFixed(1)},${c1.y.toFixed(1)} Q${cpx.toFixed(1)},${cpy.toFixed(1)} ${c2.x.toFixed(1)},${c2.y.toFixed(1)}" fill="none" stroke="${col}" stroke-width="3" opacity="0.85" marker-end="url(#ar${rank})"/>`;
+  }
   let dots='';
-  Object.entries(ends).forEach(([z,cnt])=>{
+  seq.forEach((z,i)=>{
     const c=coord(z);if(!c)return;
-    dots+=`<circle cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="${(4+cnt*1.5).toFixed(1)}" fill="#b91c1c" opacity="0.85"/><text x="${c.x.toFixed(1)}" y="${(c.y+3).toFixed(1)}" text-anchor="middle" font-size="8" font-weight="900" fill="#fff" font-family="inherit">${cnt}</text>`;
+    const isStart=i===0,isEnd=i===seq.length-1;
+    const fill=isEnd?'#b91c1c':isStart?'#15803d':'#64748b';
+    const r=isEnd?9:7;
+    dots+=`<circle cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="${r}" fill="${fill}"/>`;
+    dots+=`<text x="${c.x.toFixed(1)}" y="${(c.y+3).toFixed(1)}" text-anchor="middle" font-size="8" font-weight="900" fill="#fff" font-family="inherit">${i+1}</text>`;
   });
 
   return `<svg width="100%" viewBox="0 0 ${W} ${H}" style="display:block">${defs}${court}${arrows}${dots}</svg>`;
@@ -165,58 +146,81 @@ function render(){
   const wins=data.filter(W), loses=data.filter(L);
   const sets=[...new Set(data.map(r=>r['이름']).filter(Boolean))].sort();
 
-  document.getElementById('ds').innerHTML=sets.map(s=>{
+  document.getElementById('ds1').innerHTML=sets.map(s=>{
     const sr=data.filter(r=>r['이름']===s);
     const sw=sr.filter(W).length,sl=sr.filter(L).length;
     return`<div class="bg ${sw>sl?'bg-w':'bg-l'}">${s} ${sw}-${sl}</div>`;
   }).join('');
 
   const total=wins.length+loses.length;
-  document.getElementById('dk').innerHTML=[
+  document.getElementById('dk1').innerHTML=[
     {l:'득점',v:wins.length,c:'#1d4ed8'},
     {l:'실점',v:loses.length,c:'#b91c1c'},
     {l:'득점률',v:total?Math.round(wins.length/total*100)+'%':'-',c:'#334155'},
     {l:'패턴 랠리',v:data.filter(r=>r['패턴코트위치']?.trim()).length+'개',c:'#7c3aed'},
   ].map(k=>`<div class="kc"><div class="kl">${k.l}</div><div class="kv" style="color:${k.c}">${k.v}</div></div>`).join('');
 
-  // 패턴 추출 (실점 = 상대 공략 경로)
-  const losePatterns=data.filter(r=>L(r)&&r['패턴코트위치']?.trim())
-    .map(r=>({seq:r['패턴코트위치'].split(';').map(x=>x.trim()),result:'lose'}));
+  // 패턴 빈도 (실점)
+  const patCount={};
+  loses.filter(r=>r['패턴코트위치']?.trim()).forEach(r=>{
+    const p=r['패턴코트위치'].trim();
+    patCount[p]=(patCount[p]||0)+1;
+  });
+  const sorted=Object.entries(patCount).sort((a,b)=>b[1]-a[1]);
 
-  // Direction 분포
-  const dirCount={};
-  data.filter(r=>r['Direction']?.trim()).forEach(r=>{dirCount[r['Direction']]=(dirCount[r['Direction']]||0)+1;});
-  const dirTotal=Object.values(dirCount).reduce((a,b)=>a+b,0)||1;
-  const dirMax=Math.max(...Object.values(dirCount),1);
-  const dirLabel={'Left':'왼쪽','Right':'오른쪽','Middle':'가운데'};
-  const dirHTML=Object.entries(dirCount).sort((a,b)=>b[1]-a[1]).map(([k,v])=>{
-    const pct=Math.round(v/dirTotal*100);
-    return`<div class="br"><div class="bl">${dirLabel[k]||k}</div><div class="bt"><div class="bf" style="width:${Math.round(v/dirMax*100)}%;background:#7c3aed"></div></div><div class="bv" style="color:#7c3aed">${pct}%</div></div>`;
+  // 동률이면 그 직전까지만 (1위 빈도 그룹만), 최대 3개
+  let topPats=[];
+  if(sorted.length){
+    const topCnt=sorted[0][1];
+    topPats=sorted.filter(([p,c])=>c===topCnt).slice(0,3);
+  }
+
+  const courtsHTML=topPats.map(([pat,cnt],i)=>{
+    const seq=pat.split(';').map(x=>x.trim());
+    return`<div class="pat-item">
+      <div class="pat-rank"><div class="pat-n">${i+1}</div><div class="pat-seq">${seq.join(' → ')}</div><div class="pat-cnt">${cnt}회</div></div>
+      ${singleCourt(seq,i+1)}
+    </div>`;
   }).join('');
 
-  // 구간별 실점률
-  const segs=[['~5초',r=>parseFloat(r['기간']||0)/1000<=5],['5~15초',r=>{const s=parseFloat(r['기간']||0)/1000;return s>5&&s<=15;}],['15초+',r=>parseFloat(r['기간']||0)/1000>15]];
-  const segHTML=segs.map(([l,fn])=>{
-    const g=data.filter(fn),gL=g.filter(L).length,gW=g.filter(W).length,t=gL+gW;
-    if(!t)return'';
-    const pct=Math.round(gL/t*100),c=pct>=50?'#b91c1c':'#1d4ed8';
-    return`<div class="br"><div class="bl">${l} (${t}회)</div><div class="bt"><div class="bf" style="width:${pct}%;background:${c}"></div></div><div class="bv" style="color:${c}">${pct}%</div></div>`;
+  document.getElementById('db1').innerHTML=`
+    <div class="s">
+      <div class="stl">🎯 최다 실점 패턴 (상대 공략 TOP${topPats.length})</div>
+      <div class="pat-grid">${courtsHTML||'<div style="font-size:11px;color:#94a3b8">패턴 데이터 없음</div>'}</div>
+      <div style="font-size:9px;color:#94a3b8;margin-top:8px">🟢 시작 · ⚫ 경유 · 🔴 실점 발생 · 숫자=순서</div>
+    </div>`;
+
+  // 페이지2: 실수 위치 + 존
+  const ml=data.filter(r=>r.Result==='Mistake Lose');
+  const combo={};
+  ml.forEach(r=>{
+    const t=(TM[r.Technics]||r.Technics||'').trim();
+    const d=(DM[r.Direction]||r.Direction||'').trim();
+    if(t){const key=t+'|'+d;combo[key]=(combo[key]||0)+1;}
+  });
+  const comboSorted=Object.entries(combo).sort((a,b)=>b[1]-a[1]);
+  const comboMax=comboSorted.length?comboSorted[0][1]:1;
+  const comboHTML=comboSorted.map(([k,c])=>{
+    const [t,d]=k.split('|');
+    const dirColor={'왼쪽':'#7c3aed','오른쪽':'#0891b2','가운데':'#64748b'}[d]||'#64748b';
+    return`<div class="br"><div class="bl">${t}<span style="color:${dirColor};font-size:9px"> ·${d||'-'}</span></div><div class="bt"><div class="bf" style="width:${Math.round(c/comboMax*100)}%;background:#b91c1c"></div></div><div class="bv" style="color:#b91c1c">${c}회</div></div>`;
   }).join('');
 
-  document.getElementById('db').innerHTML=`
-    <div class="s" style="padding:8px">
-      <div class="stl">🎯 실점 랠리 패턴 (상대 공략 경로)</div>
-      ${COURT_PATTERN(losePatterns)}
-      <div style="font-size:9px;color:#94a3b8;margin-top:4px;text-align:center">화살표 굵기 = 빈도 · 🔴 숫자 = 실점 발생 횟수</div>
+  const zoneCount={};
+  data.forEach(r=>{const z=r['뒷사각']?.trim();if(z)zoneCount[z]=(zoneCount[z]||0)+1;});
+  const zoneSorted=Object.entries(zoneCount).sort((a,b)=>b[1]-a[1]);
+  const zoneMax=zoneSorted.length?zoneSorted[0][1]:1;
+  const zoneHTML=zoneSorted.map(([z,c])=>`<div class="br"><div class="bl">${z}</div><div class="bt"><div class="bf" style="width:${Math.round(c/zoneMax*100)}%;background:#ea580c"></div></div><div class="bv" style="color:#ea580c">${c}회</div></div>`).join('');
+
+  document.getElementById('db2').innerHTML=`
+    <div class="s">
+      <div class="stl">⚠️ 실수 위치 (기술 · 방향)</div>
+      ${comboHTML||'<div style="font-size:11px;color:#94a3b8">데이터 없음</div>'}
+      <div style="font-size:9px;color:#94a3b8;margin-top:4px">본인 실수 ${ml.length}회 기준</div>
     </div>
     <div class="s">
-      <div class="stl">↔️ 샷 방향 분포</div>
-      ${dirHTML||'<div style="font-size:11px;color:#94a3b8">데이터 없음</div>'}
-    </div>
-    <div class="s">
-      <div class="stl">⏱ 랠리 길이별 우리 실점률</div>
-      ${segHTML}
-      <div style="font-size:9px;color:#94a3b8;margin-top:4px">50% 이상 = 우리 불리 구간</div>
+      <div class="stl">📍 존 분포 (뒷사각)</div>
+      ${zoneHTML||'<div style="font-size:11px;color:#94a3b8">데이터 없음</div>'}
     </div>`;
 }
 
