@@ -48,7 +48,7 @@
 <div class="card" id="card">
   <div class="hdr">
     <div class="sub">🎯 상대 분석</div>
-    <div class="name" id="ip1">이다희</div>
+    <div class="name" id="ip1">배경은</div>
     <div class="info"><span id="id">WS · 단식</span></div>
     <div class="badges" id="ds"></div>
   </div>
@@ -155,13 +155,13 @@ function render(){
 
   document.getElementById('db').innerHTML=`
     <div class="s">
+      <div class="stl">📍 실점 위치 분석</div>
+      ${locHTML||'<div style="font-size:11px;color:#94a3b8">데이터 없음</div>'}
+    </div>
+    <div class="s">
       <div class="stl">⚠️ 실수 위치 (기술 · 방향)</div>
       <div class="miss-grid">${missHTML||'<div style="font-size:11px;color:#94a3b8">데이터 없음</div>'}</div>
       <div style="font-size:9px;color:#94a3b8;margin-top:8px">본인 실수 ${ml.length}회 · 전체 대비 %</div>
-    </div>
-    <div class="s">
-      <div class="stl">📍 실점 위치 분석</div>
-      ${locHTML||'<div style="font-size:11px;color:#94a3b8">데이터 없음</div>'}
     </div>`;
 }
 
