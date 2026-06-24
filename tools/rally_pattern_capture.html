@@ -8,7 +8,7 @@
   .card{width:390px;min-height:844px;background:#fff;display:flex;flex-direction:column;overflow:visible}
   .hdr{background:#eff6ff;padding:10px 14px 8px;border-bottom:1px solid #bfdbfe}
   .sub{font-size:7px;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:2px}
-  .name{font-size:24px;font-weight:900;color:#1e3a5f;line-height:1.1}
+  .name{font-size:26px;font-weight:900;color:#1e3a5f;line-height:1.1}
   .info{font-size:11px;color:#64748b;margin-top:3px}
   .badges{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
   .bg{font-size:10px;font-weight:800;padding:3px 9px;border-radius:20px}
@@ -18,44 +18,42 @@
   .kc{flex:1;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:6px 4px;text-align:center}
   .kl{font-size:8px;color:#64748b;font-weight:800;margin-bottom:2px}
   .kv{font-size:18px;font-weight:900;line-height:1}
-  .body{flex:1;padding:10px 12px;display:flex;flex-direction:column;gap:10px}
-  .s{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px 11px}
-  .stl{font-size:10px;font-weight:900;color:#475569;letter-spacing:.5px;margin-bottom:8px}
-  .br{display:flex;align-items:center;gap:6px;margin-bottom:6px}
-  .bl{font-size:10px;font-weight:700;color:#334155;text-align:right;flex-shrink:0;width:100px}
-  .bt{flex:1;height:11px;background:#e2e8f0;border-radius:3px;overflow:hidden}
-  .bf{height:100%;border-radius:3px}
-  .bv{font-size:10px;font-weight:900;width:28px;text-align:right;flex-shrink:0}
+  .body{flex:1;padding:10px 12px;display:flex;flex-direction:column;gap:12px}
+  .s{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px}
+  .stl{font-size:11px;font-weight:900;color:#475569;letter-spacing:.5px;margin-bottom:12px}
   .bot{height:8px;background:linear-gradient(90deg,#1d4ed8,#7c3aed);flex-shrink:0}
-  .pat-grid{display:flex;flex-direction:column;gap:12px}
-  .pat-item{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:8px}
-  .pat-rank{display:flex;align-items:center;gap:6px;margin-bottom:4px}
-  .pat-n{width:20px;height:20px;border-radius:50%;background:#1d4ed8;color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center}
-  .pat-seq{font-size:11px;font-weight:800;color:#1e293b}
-  .pat-cnt{font-size:10px;font-weight:800;color:#b91c1c;margin-left:auto}
+
+  /* 실수 위치 - 카드형 시각화 */
+  .miss-grid{display:flex;flex-direction:column;gap:8px}
+  .miss-row{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #fecaca;border-radius:10px;padding:9px 11px}
+  .miss-rank{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#fff;flex-shrink:0}
+  .miss-tech{font-size:14px;font-weight:900;color:#1e293b;flex-shrink:0}
+  .miss-dir{font-size:10px;font-weight:800;padding:2px 8px;border-radius:12px;flex-shrink:0}
+  .miss-bar-wrap{flex:1;display:flex;align-items:center;gap:6px}
+  .miss-bar{flex:1;height:18px;background:#fef2f2;border-radius:5px;overflow:hidden}
+  .miss-fill{height:100%;border-radius:5px;background:linear-gradient(90deg,#ef4444,#b91c1c)}
+  .miss-pct{font-size:15px;font-weight:900;color:#b91c1c;flex-shrink:0;width:42px;text-align:right}
+
+  /* 실점 위치 분석 */
+  .loc-row{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+  .loc-label{flex-shrink:0;width:155px}
+  .loc-name{font-size:12px;font-weight:900;color:#1e293b}
+  .loc-desc{font-size:9px;color:#64748b;margin-top:1px}
+  .loc-bar{flex:1;height:16px;background:#fff7ed;border-radius:5px;overflow:hidden;border:1px solid #fed7aa}
+  .loc-fill{height:100%;border-radius:5px;background:linear-gradient(90deg,#fb923c,#ea580c)}
+  .loc-pct{font-size:14px;font-weight:900;color:#ea580c;flex-shrink:0;width:42px;text-align:right}
 </style>
 </head>
 <body>
-
-<div class="card" id="card1">
+<div class="card" id="card">
   <div class="hdr">
-    <div class="sub">🏸 랠리 패턴 분석 1/2 · <span id="io1">국내</span></div>
-    <div class="name" id="ip1a">배 vs 이</div>
-    <div class="info"><span id="id1">국내 테스트</span></div>
-    <div class="badges" id="ds1"></div>
+    <div class="sub">🎯 상대 분석</div>
+    <div class="name" id="ip1">이다희</div>
+    <div class="info"><span id="id">WS · 단식</span></div>
+    <div class="badges" id="ds"></div>
   </div>
-  <div class="kpi" id="dk1"></div>
-  <div class="body" id="db1"></div>
-  <div class="bot"></div>
-</div>
-
-<div class="card" id="card2">
-  <div class="hdr">
-    <div class="sub">🏸 랠리 패턴 분석 2/2 · <span id="io2">국내</span></div>
-    <div class="name" id="ip1b">배 vs 이</div>
-    <div class="info"><span id="id2">국내 테스트</span></div>
-  </div>
-  <div class="body" id="db2"></div>
+  <div class="kpi" id="dk"></div>
+  <div class="body" id="db"></div>
   <div class="bot"></div>
 </div>
 
@@ -66,12 +64,15 @@ PLACEHOLDER`;
 const W=r=>r.Result?.toLowerCase().includes('win');
 const L=r=>r.Result?.toLowerCase().includes('lose');
 
-const ROWS=[[2,7,1],[6,8,5],[4,9,3]];
-const ZPOS={};
-ROWS.forEach((row,ri)=>row.forEach((z,ci)=>{ZPOS[z]={col:ci,row:ri};}));
-
 const TM={'Smash':'스매시','Clear':'클리어','Drop':'드롭','Hairpin':'헤어핀','Drive':'드라이브','Cut':'커트','Push':'푸시','Return':'리턴','ETC':'판단미스','숏서브 리시브':'숏서브리시브','롱서브 리시브':'롱서브리시브','숏서브':'숏서브','S.Drive':'숏드라이브','Block':'블록','cross':'크로스'};
 const DM={'Left':'왼쪽','Right':'오른쪽','Middle':'가운데'};
+const DCOLOR={'왼쪽':{bg:'#ede9fe',tx:'#6d28d9'},'오른쪽':{bg:'#cffafe',tx:'#0e7490'},'가운데':{bg:'#f1f5f9',tx:'#475569'}};
+// 존 이름 + 설명 매핑
+const ZONE_DESC={
+  '앞사이드':'앞 리턴 후 수비',
+  '뒷사이드':'클리어 후 수비',
+  '뒤사이드':'클리어 후 수비',
+};
 
 function pcsv(t){
   const lines=t.trim().split('\n').filter(Boolean);
@@ -86,111 +87,26 @@ function pcsv(t){
   });
 }
 
-function singleCourt(seq, rank){
-  const W=300, courtW=240, ox=(W-courtW)/2;
-  const halfH=120, netY=34;
-  const courtTop=netY, courtBot=netY+halfH*2;
-  const H=courtBot+26;
-  const cellW=courtW/3, cellH=halfH/3;
-
-  function coord(zoneStr){
-    const m=zoneStr.match(/(\d+)([AB])/);
-    if(!m)return null;
-    const z=parseInt(m[1]),side=m[2],p=ZPOS[z];
-    if(!p)return null;
-    const cx=ox+p.col*cellW+cellW/2;
-    let cy = side==='A' ? netY+halfH+p.row*cellH+cellH/2 : netY+halfH-(p.row*cellH+cellH/2);
-    return{x:cx,y:cy};
-  }
-
-  let court='';
-  court+=`<rect x="${ox}" y="${courtTop}" width="${courtW}" height="${halfH*2}" fill="#f0fdf4" stroke="#1e293b" stroke-width="1.5" rx="2"/>`;
-  court+=`<line x1="${ox-4}" y1="${netY+halfH}" x2="${ox+courtW+4}" y2="${netY+halfH}" stroke="#0f172a" stroke-width="2.5"/>`;
-  court+=`<text x="${ox+courtW/2}" y="${netY+halfH-3}" text-anchor="middle" font-size="6" font-weight="900" fill="#0f172a" font-family="inherit">NET</text>`;
-  for(let c=1;c<3;c++)court+=`<line x1="${ox+c*cellW}" y1="${courtTop}" x2="${ox+c*cellW}" y2="${courtBot}" stroke="#94a3b8" stroke-width="0.6" stroke-dasharray="3,3"/>`;
-  for(let r=1;r<3;r++){
-    court+=`<line x1="${ox}" y1="${netY+r*cellH}" x2="${ox+courtW}" y2="${netY+r*cellH}" stroke="#94a3b8" stroke-width="0.5" stroke-dasharray="2,3"/>`;
-    court+=`<line x1="${ox}" y1="${netY+halfH+r*cellH}" x2="${ox+courtW}" y2="${netY+halfH+r*cellH}" stroke="#94a3b8" stroke-width="0.5" stroke-dasharray="2,3"/>`;
-  }
-  court+=`<text x="${ox+courtW/2}" y="${courtTop-4}" text-anchor="middle" font-size="7" font-weight="900" fill="#b91c1c" font-family="inherit">상대(B)</text>`;
-  court+=`<text x="${ox+courtW/2}" y="${courtBot+12}" text-anchor="middle" font-size="7" font-weight="900" fill="#1d4ed8" font-family="inherit">우리(A)</text>`;
-
-  let defs=`<defs><marker id="ar${rank}" markerWidth="7" markerHeight="7" refX="5" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 Z" fill="#475569"/></marker></defs>`;
-  let arrows='';
-  const cols=['#3b82f6','#f59e0b','#b91c1c','#7c3aed'];
-  for(let i=0;i<seq.length-1;i++){
-    const c1=coord(seq[i]),c2=coord(seq[i+1]);
-    if(!c1||!c2)continue;
-    const mx=(c1.x+c2.x)/2,my=(c1.y+c2.y)/2;
-    const dx=c2.x-c1.x,dy=c2.y-c1.y,len=Math.sqrt(dx*dx+dy*dy)||1;
-    const off=Math.min(len*0.22,18);
-    const cpx=mx-dy/len*off,cpy=my+dx/len*off;
-    const col=cols[i%cols.length];
-    arrows+=`<path d="M${c1.x.toFixed(1)},${c1.y.toFixed(1)} Q${cpx.toFixed(1)},${cpy.toFixed(1)} ${c2.x.toFixed(1)},${c2.y.toFixed(1)}" fill="none" stroke="${col}" stroke-width="3" opacity="0.85" marker-end="url(#ar${rank})"/>`;
-  }
-  let dots='';
-  seq.forEach((z,i)=>{
-    const c=coord(z);if(!c)return;
-    const isStart=i===0,isEnd=i===seq.length-1;
-    const fill=isEnd?'#b91c1c':isStart?'#15803d':'#64748b';
-    const r=isEnd?9:7;
-    dots+=`<circle cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="${r}" fill="${fill}"/>`;
-    dots+=`<text x="${c.x.toFixed(1)}" y="${(c.y+3).toFixed(1)}" text-anchor="middle" font-size="8" font-weight="900" fill="#fff" font-family="inherit">${i+1}</text>`;
-  });
-
-  return `<svg width="100%" viewBox="0 0 ${W} ${H}" style="display:block">${defs}${court}${arrows}${dots}</svg>`;
-}
-
 function render(){
   const data=pcsv(CSV);
   const wins=data.filter(W), loses=data.filter(L);
   const sets=[...new Set(data.map(r=>r['이름']).filter(Boolean))].sort();
 
-  document.getElementById('ds1').innerHTML=sets.map(s=>{
+  document.getElementById('ds').innerHTML=sets.map(s=>{
     const sr=data.filter(r=>r['이름']===s);
     const sw=sr.filter(W).length,sl=sr.filter(L).length;
     return`<div class="bg ${sw>sl?'bg-w':'bg-l'}">${s} ${sw}-${sl}</div>`;
   }).join('');
 
   const total=wins.length+loses.length;
-  document.getElementById('dk1').innerHTML=[
+  document.getElementById('dk').innerHTML=[
     {l:'득점',v:wins.length,c:'#1d4ed8'},
     {l:'실점',v:loses.length,c:'#b91c1c'},
     {l:'득점률',v:total?Math.round(wins.length/total*100)+'%':'-',c:'#334155'},
-    {l:'패턴 랠리',v:data.filter(r=>r['패턴코트위치']?.trim()).length+'개',c:'#7c3aed'},
+    {l:'본인 실수',v:data.filter(r=>r.Result==='Mistake Lose').length,c:'#ea580c'},
   ].map(k=>`<div class="kc"><div class="kl">${k.l}</div><div class="kv" style="color:${k.c}">${k.v}</div></div>`).join('');
 
-  // 패턴 빈도 (실점)
-  const patCount={};
-  loses.filter(r=>r['패턴코트위치']?.trim()).forEach(r=>{
-    const p=r['패턴코트위치'].trim();
-    patCount[p]=(patCount[p]||0)+1;
-  });
-  const sorted=Object.entries(patCount).sort((a,b)=>b[1]-a[1]);
-
-  // 동률이면 그 직전까지만 (1위 빈도 그룹만), 최대 3개
-  let topPats=[];
-  if(sorted.length){
-    const topCnt=sorted[0][1];
-    topPats=sorted.filter(([p,c])=>c===topCnt).slice(0,3);
-  }
-
-  const courtsHTML=topPats.map(([pat,cnt],i)=>{
-    const seq=pat.split(';').map(x=>x.trim());
-    return`<div class="pat-item">
-      <div class="pat-rank"><div class="pat-n">${i+1}</div><div class="pat-seq">${seq.join(' → ')}</div><div class="pat-cnt">${cnt}회</div></div>
-      ${singleCourt(seq,i+1)}
-    </div>`;
-  }).join('');
-
-  document.getElementById('db1').innerHTML=`
-    <div class="s">
-      <div class="stl">🎯 최다 실점 패턴 (상대 공략 TOP${topPats.length})</div>
-      <div class="pat-grid">${courtsHTML||'<div style="font-size:11px;color:#94a3b8">패턴 데이터 없음</div>'}</div>
-      <div style="font-size:9px;color:#94a3b8;margin-top:8px">🟢 시작 · ⚫ 경유 · 🔴 실점 발생 · 숫자=순서</div>
-    </div>`;
-
-  // 페이지2: 실수 위치 + 존
+  // ── 실수 위치 (기술+방향) ────────────────────────────────────
   const ml=data.filter(r=>r.Result==='Mistake Lose');
   const combo={};
   ml.forEach(r=>{
@@ -199,28 +115,53 @@ function render(){
     if(t){const key=t+'|'+d;combo[key]=(combo[key]||0)+1;}
   });
   const comboSorted=Object.entries(combo).sort((a,b)=>b[1]-a[1]);
+  const mlTotal=ml.length||1;
   const comboMax=comboSorted.length?comboSorted[0][1]:1;
-  const comboHTML=comboSorted.map(([k,c])=>{
+  const rankColors=['#b91c1c','#dc2626','#ef4444','#f87171'];
+  const missHTML=comboSorted.map(([k,c],i)=>{
     const [t,d]=k.split('|');
-    const dirColor={'왼쪽':'#7c3aed','오른쪽':'#0891b2','가운데':'#64748b'}[d]||'#64748b';
-    return`<div class="br"><div class="bl">${t}<span style="color:${dirColor};font-size:9px"> ·${d||'-'}</span></div><div class="bt"><div class="bf" style="width:${Math.round(c/comboMax*100)}%;background:#b91c1c"></div></div><div class="bv" style="color:#b91c1c">${c}회</div></div>`;
+    const pct=Math.round(c/mlTotal*100);
+    const dc=DCOLOR[d]||{bg:'#f1f5f9',tx:'#475569'};
+    const rc=i<3?rankColors[i]:'#94a3b8';
+    return`<div class="miss-row">
+      <div class="miss-rank" style="background:${rc}">${i+1}</div>
+      <div class="miss-tech">${t}</div>
+      <div class="miss-dir" style="background:${dc.bg};color:${dc.tx}">${d||'-'}</div>
+      <div class="miss-bar-wrap">
+        <div class="miss-bar"><div class="miss-fill" style="width:${Math.round(c/comboMax*100)}%"></div></div>
+        <div class="miss-pct">${pct}%</div>
+      </div>
+    </div>`;
   }).join('');
 
+  // ── 실점 위치 분석 (뒷사각) ──────────────────────────────────
   const zoneCount={};
   data.forEach(r=>{const z=r['뒷사각']?.trim();if(z)zoneCount[z]=(zoneCount[z]||0)+1;});
+  const zoneTotal=Object.values(zoneCount).reduce((a,b)=>a+b,0)||1;
   const zoneSorted=Object.entries(zoneCount).sort((a,b)=>b[1]-a[1]);
   const zoneMax=zoneSorted.length?zoneSorted[0][1]:1;
-  const zoneHTML=zoneSorted.map(([z,c])=>`<div class="br"><div class="bl">${z}</div><div class="bt"><div class="bf" style="width:${Math.round(c/zoneMax*100)}%;background:#ea580c"></div></div><div class="bv" style="color:#ea580c">${c}회</div></div>`).join('');
+  const locHTML=zoneSorted.map(([z,c])=>{
+    const pct=Math.round(c/zoneTotal*100);
+    const desc=ZONE_DESC[z]||'';
+    return`<div class="loc-row">
+      <div class="loc-label">
+        <div class="loc-name">${z}</div>
+        ${desc?`<div class="loc-desc">${desc}</div>`:''}
+      </div>
+      <div class="loc-bar"><div class="loc-fill" style="width:${Math.round(c/zoneMax*100)}%"></div></div>
+      <div class="loc-pct">${pct}%</div>
+    </div>`;
+  }).join('');
 
-  document.getElementById('db2').innerHTML=`
+  document.getElementById('db').innerHTML=`
     <div class="s">
       <div class="stl">⚠️ 실수 위치 (기술 · 방향)</div>
-      ${comboHTML||'<div style="font-size:11px;color:#94a3b8">데이터 없음</div>'}
-      <div style="font-size:9px;color:#94a3b8;margin-top:4px">본인 실수 ${ml.length}회 기준</div>
+      <div class="miss-grid">${missHTML||'<div style="font-size:11px;color:#94a3b8">데이터 없음</div>'}</div>
+      <div style="font-size:9px;color:#94a3b8;margin-top:8px">본인 실수 ${ml.length}회 · 전체 대비 %</div>
     </div>
     <div class="s">
-      <div class="stl">📍 존 분포 (뒷사각)</div>
-      ${zoneHTML||'<div style="font-size:11px;color:#94a3b8">데이터 없음</div>'}
+      <div class="stl">📍 실점 위치 분석</div>
+      ${locHTML||'<div style="font-size:11px;color:#94a3b8">데이터 없음</div>'}
     </div>`;
 }
 
