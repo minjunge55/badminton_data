@@ -23,16 +23,21 @@
   .stl{font-size:11px;font-weight:900;color:#475569;letter-spacing:.5px;margin-bottom:12px}
   .bot{height:8px;background:linear-gradient(90deg,#1d4ed8,#7c3aed);flex-shrink:0}
 
-  /* 실수 위치 - 카드형 시각화 */
-  .miss-grid{display:flex;flex-direction:column;gap:8px}
-  .miss-row{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #fecaca;border-radius:10px;padding:9px 11px}
-  .miss-rank{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#fff;flex-shrink:0}
-  .miss-tech{font-size:14px;font-weight:900;color:#1e293b;flex-shrink:0}
-  .miss-dir{font-size:10px;font-weight:800;padding:2px 8px;border-radius:12px;flex-shrink:0}
-  .miss-bar-wrap{flex:1;display:flex;align-items:center;gap:6px}
-  .miss-bar{flex:1;height:18px;background:#fef2f2;border-radius:5px;overflow:hidden}
+  /* 실수 위치 - 컴팩트 */
+  .miss-grid{display:flex;flex-direction:column;gap:0}
+  .miss-row{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+  .miss-tech{font-size:12px;font-weight:900;color:#1e293b;flex-shrink:0;width:80px}
+  .miss-dir{font-size:9px;font-weight:800;padding:1px 6px;border-radius:10px;flex-shrink:0;width:42px;text-align:center}
+  .miss-bar{flex:1;height:16px;background:#fef2f2;border-radius:5px;overflow:hidden;border:1px solid #fecaca}
   .miss-fill{height:100%;border-radius:5px;background:linear-gradient(90deg,#ef4444,#b91c1c)}
-  .miss-pct{font-size:15px;font-weight:900;color:#b91c1c;flex-shrink:0;width:42px;text-align:right}
+  .miss-pct{font-size:14px;font-weight:900;color:#b91c1c;flex-shrink:0;width:42px;text-align:right}
+  /* 랠리 길이별 득실 */
+  .seg-row{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+  .seg-label{flex-shrink:0;width:90px;font-size:12px;font-weight:900;color:#1e293b}
+  .seg-bars{flex:1;display:flex;height:18px;border-radius:5px;overflow:hidden;background:#f1f5f9}
+  .seg-w{background:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:#fff;min-width:0}
+  .seg-l{background:#b91c1c;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:#fff;min-width:0}
+  .seg-pct{flex-shrink:0;width:42px;text-align:right;font-size:13px;font-weight:900}
 
   /* 실점 위치 분석 */
   .loc-row{display:flex;align-items:center;gap:8px;margin-bottom:9px}
@@ -122,15 +127,11 @@ function render(){
     const [t,d]=k.split('|');
     const pct=Math.round(c/mlTotal*100);
     const dc=DCOLOR[d]||{bg:'#f1f5f9',tx:'#475569'};
-    const rc=i<3?rankColors[i]:'#94a3b8';
     return`<div class="miss-row">
-      <div class="miss-rank" style="background:${rc}">${i+1}</div>
       <div class="miss-tech">${t}</div>
       <div class="miss-dir" style="background:${dc.bg};color:${dc.tx}">${d||'-'}</div>
-      <div class="miss-bar-wrap">
-        <div class="miss-bar"><div class="miss-fill" style="width:${Math.round(c/comboMax*100)}%"></div></div>
-        <div class="miss-pct">${pct}%</div>
-      </div>
+      <div class="miss-bar"><div class="miss-fill" style="width:${Math.round(c/comboMax*100)}%"></div></div>
+      <div class="miss-pct">${pct}%</div>
     </div>`;
   }).join('');
 
@@ -153,10 +154,35 @@ function render(){
     </div>`;
   }).join('');
 
+  // 랠리 길이별 득/실점
+  const segs=[['~5초',r=>parseFloat(r['기간']||0)/1000<=5],['5~15초',r=>{const s=parseFloat(r['기간']||0)/1000;return s>5&&s<=15;}],['15초+',r=>parseFloat(r['기간']||0)/1000>15]];
+  const segHTML=segs.map(([l,fn])=>{
+    const g=data.filter(fn),gW=g.filter(W).length,gL=g.filter(L).length,t=gW+gL;
+    if(!t)return'';
+    const wPct=Math.round(gW/t*100),lPct=100-wPct;
+    return`<div class="seg-row">
+      <div class="seg-label">${l} <span style="font-size:9px;color:#94a3b8;font-weight:700">(${t})</span></div>
+      <div class="seg-bars">
+        <div class="seg-w" style="width:${wPct}%">${gW>0?gW:''}</div>
+        <div class="seg-l" style="width:${lPct}%">${gL>0?gL:''}</div>
+      </div>
+      <div class="seg-pct" style="color:${wPct>=50?'#1d4ed8':'#b91c1c'}">${wPct}%</div>
+    </div>`;
+  }).join('');
+
   document.getElementById('db').innerHTML=`
     <div class="s">
       <div class="stl">📍 실점 위치 분석</div>
       ${locHTML||'<div style="font-size:11px;color:#94a3b8">데이터 없음</div>'}
+    </div>
+    <div class="s">
+      <div class="stl">⏱ 랠리 길이별 득·실점</div>
+      ${segHTML}
+      <div style="display:flex;gap:12px;margin-top:6px;font-size:9px">
+        <span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:#1d4ed8;border-radius:2px;display:inline-block"></span>득점</span>
+        <span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:#b91c1c;border-radius:2px;display:inline-block"></span>실점</span>
+        <span style="color:#94a3b8">· % = 득점률</span>
+      </div>
     </div>
     <div class="s">
       <div class="stl">⚠️ 실수 위치 (기술 · 방향)</div>
