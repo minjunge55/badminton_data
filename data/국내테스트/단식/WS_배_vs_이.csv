@@ -1,0 +1,112 @@
+﻿이름,위치,기간,Result,Technics,Direction,뒷사각,패턴코트위치
+1set (1),119933,20633,Mistake Lose,Clear,Right,,
+1set (2),149100,13933,Away Mistake Win,,,,
+1set (3),174900,22266,Mistake Lose,Clear,Left,,
+1set (4),210100,6200,Away Mistake Win,,,,
+1set (5),230633,6000,Successful Win,,,,
+1set (6),249300,5666,Away Mistake Win,,,,
+1set (7),263500,21400,Successful Win,,,,
+1set (8),300900,10600,Mistake Lose,Smash,Left,,
+1set (9),322500,8066,Successful Win,,,,
+1set (10),343233,8800,Successful Win,,,,
+1set (11),367500,18533,Away Successful Lose,,,뒤앞,4A;3B;1A
+1set (12),401766,20200,Successful Win,,,,
+1set (13),440166,17533,Away Successful Lose,,,앞뒤,1A;4B;4A
+1set (14),480166,9666,Away Mistake Win,,,,
+1set (15),502300,25466,Successful Win,,,,
+1set (16),560300,7733,Mistake Lose,Drop,Right,,
+1set (17),586500,7600,Away Successful Lose,,,뒤앞,3A;4B;2A
+1set (18),609833,5133,Mistake Lose,숏서브 리시브,Left,,
+1set (19),625033,11000,Away Mistake Win,,,,
+1set (20),698266,5066,Successful Win,,,,
+1set (21),713400,19600,Away Mistake Win,,,,
+1set (22),749333,10933,Away Successful Lose,,,뒤앞,3A;2B;2A
+1set (23),775200,12800,Away Mistake Win,,,,
+1set (24),802533,14200,Successful Win,,,,
+1set (25),845600,10066,Successful Win,,,,
+1set (26),869333,9933,Mistake Lose,Smash,Left,,
+1set (27),891333,10133,Away Mistake Win,,,,
+1set (28),922133,20933,Successful Win,,,,
+1set (29),980066,21600,Away Successful Lose,,,뒤뒤,3A;4B;6A
+1set (30),1026066,4600,Successful Win,,,,
+1set (31),1043800,12400,Successful Win,,,,
+1set (32),1067666,15533,Successful Win,,,,
+2set (1),1184000,29866,Mistake Lose,Smash,Left,,
+2set (2),1232000,4933,Mistake Lose,숏서브 리시브,Left,,
+2set (3),1251066,6133,Away Mistake Win,,,,
+2set (4),1266466,13266,Away Successful Lose,,,뒤앞,4A;5B;1A
+2set (5),1300933,16000,Successful Win,,,,
+2set (6),1337533,25133,Away Successful Lose,,,앞뒤,2A;4B;4A
+2set (7),1392200,6933,Away Mistake Win,,,,
+2set (8),1445200,5000,Successful Win,,,,
+2set (9),1471600,12666,Away Mistake Win,,,,
+2set (10),1500200,3800,Away Mistake Win,,,,
+2set (11),1516533,7733,Successful Win,,,,
+2set (12),1539400,16400,Away Mistake Win,,,,
+2set (13),1572066,5933,Away Mistake Win,,,,
+2set (14),1594266,13866,Mistake Lose,Drop,Left,,
+2set (15),1625466,5200,Mistake Lose,숏서브 리시브,Left,,
+2set (16),1652200,6866,Away Successful Lose,,,앞사이드,7A;3B;2A
+2set (17),1672333,24000,Away Mistake Win,,,,
+2set (18),1743400,7133,Mistake Lose,Drop,Left,,
+2set (19),1783466,20733,Successful Win,,,,
+2set (20),1919666,39666,Away Mistake Win,,,,
+2set (21),1999333,14400,Successful Win,,,,
+2set (22),2048866,18533,Away Successful Lose,,,앞사이드,7A;4B;1A
+2set (23),2087600,19400,Away Successful Lose,,,앞사이드,3B;2A
+2set (24),2136533,9933,Mistake Lose,Drop,Right,,
+2set (25),2165466,9200,Successful Win,,,,
+2set (26),2195066,6533,Mistake Lose,ETC,Right,,
+2set (27),2213066,13800,Mistake Lose,Smash,Right,,
+2set (28),2256400,22133,Mistake Lose,Drop,Left,,
+2set (29),2300466,6533,Away Mistake Win,,,,
+2set (30),2318533,21866,Mistake Lose,Smash,Left,,
+2set (31),2376533,5400,Mistake Lose,Clear,Left,,
+2set (32),2395066,5600,Successful Win,,,,
+2set (33),2415133,8866,Away Successful Lose,,,앞사이드,2A;3B;1A
+2set (34),2460266,9400,Mistake Lose,Hairpin,Middle,,
+2set (35),2481600,11733,Successful Win,,,,
+2set (36),2516200,11666,Away Successful Lose,,,앞사이드,7A;3B;1A
+2set (37),2547266,8000,Successful Win,,,,
+2set (38),2572600,14866,Away Mistake Win,,,,
+2set (39),2646400,13533,Away Successful Lose,,,앞앞,2B;1A
+2set (40),2680400,7666,Mistake Lose,Push,Right,,
+3set (1),2816100,20400,Successful Win,,,,
+3set (2),2853233,19833,Successful Win,,,,
+3set (3),2891166,3866,Away Mistake Win,,,,
+3set (4),2909700,18533,Mistake Lose,ETC,Right,,
+3set (5),2960133,5800,Successful Win,,,,
+3set (6),2984233,11200,Away Successful Lose,,,뒤사이드,3A;3B;5A
+3set (7),3009633,42133,Away Successful Lose,,,뒤사이드,2A;4B;5A
+3set (8),3099433,18133,Successful Win,,,,
+3set (9),3140700,5333,Away Successful Lose,,,사이드뒤,8A;2B;3A
+3set (10),3166733,10300,Mistake Lose,Smash,Left,,
+3set (11),3193566,18533,Away Mistake Win,,,,
+3set (12),3233900,12966,Away Successful Lose,,,앞사이드,3B;1A
+3set (13),3282633,12066,Away Successful Lose,,,뒤앞,3A;2B;2A
+3set (14),3316366,14733,Away Mistake Win,,,,
+3set (15),3352233,12400,Away Mistake Win,,,,
+3set (16),3384900,8133,Away Mistake Win,,,,
+3set (17),3421233,21333,Successful Win,,,,
+3set (18),3496966,6766,Away Successful Lose,,,앞사이드,4B;2A
+3set (19),3582233,10933,Mistake Lose,Clear,Right,,
+3set (20),3605966,4866,Away Successful Lose,,,,
+3set (21),3628233,11533,Successful Win,,,,
+3set (22),3721166,18400,Mistake Lose,Hairpin,Left,,
+3set (23),3766033,5400,Mistake Lose,Smash,Right,,
+3set (24),3783033,14466,Mistake Lose,Return,Right,,
+3set (25),3817166,4466,Mistake Lose,숏서브 리시브,Left,,
+3set (26),3835100,7266,Successful Win,,,,
+3set (27),3857900,11600,Mistake Lose,Drop,Left,,
+3set (28),3893300,12466,Away Mistake Win,,,,
+3set (29),3921100,30600,Mistake Lose,Clear,Left,,
+3set (30),4010233,25466,Mistake Lose,Clear,Left,,
+3set (31),4058033,11600,Successful Win,,,,
+3set (32),4092900,5066,Away Successful Lose,,,사이드앞,8A;1B;1A
+3set (33),4114633,19266,Away Successful Lose,,,뒤뒤,3A;4B;4A
+3set (34),4154100,27266,Mistake Lose,Smash,Left,,
+3set (35),4203966,8266,Successful Win,,,,
+3set (36),4242633,5800,Successful Win,,,,
+3set (37),4264433,8066,Successful Win,,,,
+3set (38),4285966,14666,Successful Win,,,,
+3set (39),4324700,4333,Away Successful Lose,,,사이드앞,8A;1B;1A
