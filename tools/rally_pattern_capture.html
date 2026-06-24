@@ -47,18 +47,34 @@
   .loc-bar{flex:1;height:16px;background:#fff7ed;border-radius:5px;overflow:hidden;border:1px solid #fed7aa}
   .loc-fill{height:100%;border-radius:5px;background:linear-gradient(90deg,#fb923c,#ea580c)}
   .loc-pct{font-size:14px;font-weight:900;color:#ea580c;flex-shrink:0;width:42px;text-align:right}
+  /* 경기 결과 4가지 */
+  .res-row{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+  .res-label{flex-shrink:0;width:110px;font-size:12px;font-weight:900}
+  .res-bar{flex:1;height:16px;background:#f1f5f9;border-radius:5px;overflow:hidden}
+  .res-fill{height:100%;border-radius:5px}
+  .res-pct{flex-shrink:0;width:42px;text-align:right;font-size:14px;font-weight:900}
 </style>
 </head>
 <body>
-<div class="card" id="card">
+<div class="card" id="card1">
   <div class="hdr">
-    <div class="sub">🎯 상대 분석</div>
+    <div class="sub">🎯 상대 분석 1/2</div>
     <div class="name" id="ip1">배경은</div>
     <div class="info"><span id="id">WS · 단식</span></div>
     <div class="badges" id="ds"></div>
   </div>
   <div class="kpi" id="dk"></div>
   <div class="body" id="db"></div>
+  <div class="bot"></div>
+</div>
+
+<div class="card" id="card2">
+  <div class="hdr">
+    <div class="sub">🎯 상대 분석 2/2</div>
+    <div class="name" id="ip1b">배경은</div>
+    <div class="info"><span id="id2">WS · 단식</span></div>
+  </div>
+  <div class="body" id="db2"></div>
   <div class="bot"></div>
 </div>
 
@@ -170,11 +186,35 @@ function render(){
     </div>`;
   }).join('');
 
+  // 경기 결과 4가지
+  const RM={'Successful Win':['성공 득점','#1d4ed8'],'Away Mistakes Win':['상대실수 득점','#60a5fa'],'Away Successful Lose':['상대성공 실점','#b91c1c'],'Mistake Lose':['본인실수 실점','#f87171']};
+  const resCount={};
+  data.forEach(r=>{if(RM[r.Result])resCount[r.Result]=(resCount[r.Result]||0)+1;});
+  const resTotal=Object.values(resCount).reduce((a,b)=>a+b,0)||1;
+  const resMax=Math.max(...Object.values(resCount),1);
+  const resHTML=Object.entries(resCount).sort((a,b)=>b[1]-a[1]).map(([k,c])=>{
+    const [label,color]=RM[k];
+    const pct=Math.round(c/resTotal*100);
+    return`<div class="res-row">
+      <div class="res-label" style="color:${color}">${label}</div>
+      <div class="res-bar"><div class="res-fill" style="width:${Math.round(c/resMax*100)}%;background:${color}"></div></div>
+      <div class="res-pct" style="color:${color}">${pct}%</div>
+    </div>`;
+  }).join('');
+
+  // 페이지 1: 실점 위치 + 경기 결과
   document.getElementById('db').innerHTML=`
     <div class="s">
       <div class="stl">📍 실점 위치 분석</div>
       ${locHTML||'<div style="font-size:11px;color:#94a3b8">데이터 없음</div>'}
     </div>
+    <div class="s">
+      <div class="stl">📊 경기 결과</div>
+      ${resHTML}
+    </div>`;
+
+  // 페이지 2: 랠리 길이별 + 실수 위치
+  document.getElementById('db2').innerHTML=`
     <div class="s">
       <div class="stl">⏱ 랠리 길이별 득·실점</div>
       ${segHTML}
