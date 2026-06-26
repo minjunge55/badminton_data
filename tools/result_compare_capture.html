@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:#fff}
+  .card{width:390px;min-height:844px;background:#fff;display:flex;flex-direction:column;overflow:visible}
+  .hdr{background:#f0fdf4;padding:10px 14px 8px;border-bottom:1px solid #bbf7d0}
+  .sub{font-size:7px;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:2px}
+  .name{font-size:22px;font-weight:900;color:#14532d;line-height:1.1}
+  .info{font-size:11px;color:#64748b;margin-top:3px}
+  .body{flex:1;padding:10px 12px;display:flex;flex-direction:column;gap:12px}
+  .s{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px}
+  .stl{font-size:11px;font-weight:900;color:#475569;letter-spacing:.5px;margin-bottom:12px}
+  .bot{height:8px;background:linear-gradient(90deg,#16a34a,#0891b2);flex-shrink:0}
+
+  /* 핵심 지표 비교 (큰 숫자) */
+  .hl{display:flex;gap:8px;margin-bottom:4px}
+  .hl-box{flex:1;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:11px 8px;text-align:center}
+  .hl-label{font-size:9px;font-weight:800;color:#64748b;margin-bottom:6px}
+  .hl-vals{display:flex;align-items:baseline;justify-content:center;gap:5px}
+  .hl-old{font-size:18px;font-weight:900;color:#0891b2}
+  .hl-arrow{font-size:11px;color:#94a3b8;font-weight:900}
+  .hl-new{font-size:18px;font-weight:900;color:#ea580c}
+  .hl-diff{font-size:10px;font-weight:900;margin-top:3px}
+
+  /* 결과 4분할 스택바 */
+  .stack-wrap{margin-bottom:14px}
+  .stack-label{font-size:11px;font-weight:900;margin-bottom:5px}
+  .stack{display:flex;height:26px;border-radius:6px;overflow:hidden}
+  .stack-seg{display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#fff;min-width:0}
+
+  .legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+  .lg{display:flex;align-items:center;gap:4px;font-size:9px;font-weight:700;color:#475569}
+  .lg-dot{width:10px;height:10px;border-radius:2px}
+</style>
+</head>
+<body>
+<div class="card" id="card">
+  <div class="hdr">
+    <div class="sub">📊 경기 결과 · 실수 비중 비교</div>
+    <div class="name" id="t1">배경은 결과 비교</div>
+    <div class="info"><span id="sub1">vs 이다희 → vs 김민선</span></div>
+  </div>
+  <div class="body" id="db"></div>
+  <div class="bot"></div>
+</div>
+
+<script>
+const CSV_OLD=`OLD_PLACEHOLDER`;
+const CSV_NEW=`NEW_PLACEHOLDER`;
+const LABEL_OLD="vs 이다희";
+const LABEL_NEW="vs 김민선";
+
+function pcsv(t){
+  const lines=t.trim().split('\n').filter(Boolean);
+  const delim=lines[0].includes(';')?';':',';
+  const h=lines[0].split(delim).map(x=>x.trim().replace(/^\uFEFF/,'').replace(/\r/g,''));
+  return lines.slice(1).map(s=>{
+    const v=s.split(delim).map(x=>x.trim().replace(/\r/g,''));
+    const o={};h.forEach((k,i)=>o[k]=v[i]||'');
+    if(o.Result==='Away Mistake Win')o.Result='Away Mistakes Win';
+    return o;
+  });
+}
+
+function stats(rows){
+  const total=rows.length;
+  const W=r=>r.Result.toLowerCase().includes('win');
+  const L=r=>r.Result.toLowerCase().includes('lose');
+  const wins=rows.filter(W).length, loses=rows.filter(L).length;
+  const cnt={};
+  rows.forEach(r=>cnt[r.Result]=(cnt[r.Result]||0)+1);
+  const mistake=cnt['Mistake Lose']||0;
+  return {total,wins,loses,
+    succWin:cnt['Successful Win']||0,
+    awayMisWin:cnt['Away Mistakes Win']||0,
+    awaySuccLose:cnt['Away Successful Lose']||0,
+    mistake,
+    winRate:Math.round(wins/total*100),
+    mistakeOfTotal:Math.round(mistake/total*100),
+    mistakeOfLose:Math.round(mistake/loses*100)};
+}
+
+function render(){
+  const o=stats(pcsv(CSV_OLD)), n=stats(pcsv(CSV_NEW));
+
+  // 핵심 지표 3개
+  function hlBox(label, ov, nv, suffix, lowerBetter){
+    const diff=nv-ov;
+    let color='#64748b';
+    if(diff!==0){
+      const good = lowerBetter ? diff<0 : diff>0;
+      color = good ? '#16a34a' : '#dc2626';
+    }
+    return`<div class="hl-box">
+      <div class="hl-label">${label}</div>
+      <div class="hl-vals"><span class="hl-old">${ov}${suffix}</span><span class="hl-arrow">→</span><span class="hl-new">${nv}${suffix}</span></div>
+      <div class="hl-diff" style="color:${color}">${diff>0?'+':''}${diff}${suffix.includes('%')?'%p':''}</div>
+    </div>`;
+  }
+
+  // 결과 4분할 스택
+  const COLORS={succWin:'#1d4ed8',awayMisWin:'#60a5fa',awaySuccLose:'#b91c1c',mistake:'#f87171'};
+  function stackBar(s){
+    const segs=[
+      ['succWin','성공득점',s.succWin],
+      ['awayMisWin','상대실수',s.awayMisWin],
+      ['awaySuccLose','상대성공실점',s.awaySuccLose],
+      ['mistake','본인실수',s.mistake],
+    ];
+    return segs.map(([k,lbl,v])=>{
+      const pct=Math.round(v/s.total*100);
+      return`<div class="stack-seg" style="width:${v/s.total*100}%;background:${COLORS[k]}">${pct>=8?pct+'%':''}</div>`;
+    }).join('');
+  }
+
+  document.getElementById('db').innerHTML=`
+    <div class="s">
+      <div class="stl">🎯 핵심 지표 변화</div>
+      <div class="hl">
+        ${hlBox('득점률', o.winRate, n.winRate, '%', false)}
+        ${hlBox('본인실수<br>(전체 대비)', o.mistakeOfTotal, n.mistakeOfTotal, '%', true)}
+        ${hlBox('본인실수<br>(실점 중)', o.mistakeOfLose, n.mistakeOfLose, '%', true)}
+      </div>
+      <div style="font-size:9px;color:#94a3b8;margin-top:6px">초록=개선 · 빨강=악화 (실수는 낮을수록 좋음)</div>
+    </div>
+
+    <div class="s">
+      <div class="stl">📊 경기 결과 구성 비교</div>
+      <div class="stack-wrap">
+        <div class="stack-label" style="color:#0891b2">${LABEL_OLD} (${o.total}랠리 · 득점률 ${o.winRate}%)</div>
+        <div class="stack">${stackBar(o)}</div>
+      </div>
+      <div class="stack-wrap">
+        <div class="stack-label" style="color:#ea580c">${LABEL_NEW} (${n.total}랠리 · 득점률 ${n.winRate}%)</div>
+        <div class="stack">${stackBar(n)}</div>
+      </div>
+      <div class="legend">
+        <div class="lg"><span class="lg-dot" style="background:#1d4ed8"></span>성공 득점</div>
+        <div class="lg"><span class="lg-dot" style="background:#60a5fa"></span>상대실수 득점</div>
+        <div class="lg"><span class="lg-dot" style="background:#b91c1c"></span>상대성공 실점</div>
+        <div class="lg"><span class="lg-dot" style="background:#f87171"></span>본인실수 실점</div>
+      </div>
+    </div>
+
+    <div class="s">
+      <div class="stl">⚠️ 본인실수 비중 상세</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+            <span style="font-size:11px;font-weight:800;color:#0891b2">${LABEL_OLD}</span>
+            <span style="font-size:11px;font-weight:900;color:#0891b2">${o.mistake}회 / 실점 ${o.loses}회</span>
+          </div>
+          <div style="height:16px;background:#f1f5f9;border-radius:5px;overflow:hidden;display:flex">
+            <div style="width:${o.mistake/o.loses*100}%;background:#0891b2;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:#fff">${o.mistakeOfLose}%</div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+            <span style="font-size:11px;font-weight:800;color:#ea580c">${LABEL_NEW}</span>
+            <span style="font-size:11px;font-weight:900;color:#ea580c">${n.mistake}회 / 실점 ${n.loses}회</span>
+          </div>
+          <div style="height:16px;background:#f1f5f9;border-radius:5px;overflow:hidden;display:flex">
+            <div style="width:${n.mistake/n.loses*100}%;background:#ea580c;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:#fff">${n.mistakeOfLose}%</div>
+          </div>
+        </div>
+      </div>
+      <div style="font-size:10px;color:#16a34a;font-weight:800;margin-top:10px;padding-top:8px;border-top:1px solid #e2e8f0">
+        ✅ 실점 중 본인실수 비중 ${o.mistakeOfLose}% → ${n.mistakeOfLose}% (${n.mistakeOfLose-o.mistakeOfLose}%p 개선)
+      </div>
+    </div>`;
+}
+
+render();
+</script>
+</body>
+</html>
