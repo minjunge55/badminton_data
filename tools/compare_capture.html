@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:#fff}
+  .card{width:390px;min-height:844px;background:#fff;display:flex;flex-direction:column;overflow:visible}
+  .hdr{background:#f0fdf4;padding:10px 14px 8px;border-bottom:1px solid #bbf7d0}
+  .sub{font-size:7px;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:2px}
+  .name{font-size:22px;font-weight:900;color:#14532d;line-height:1.1}
+  .info{font-size:11px;color:#64748b;margin-top:3px}
+  .body{flex:1;padding:10px 12px;display:flex;flex-direction:column;gap:12px}
+  .s{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px}
+  .stl{font-size:11px;font-weight:900;color:#475569;letter-spacing:.5px;margin-bottom:12px}
+  .bot{height:8px;background:linear-gradient(90deg,#16a34a,#0891b2);flex-shrink:0}
+
+  /* 개선/악화 */
+  .chg-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+  .chg-name{flex-shrink:0;width:120px;font-size:11px;font-weight:800;color:#1e293b}
+  .chg-bars{flex:1;display:flex;align-items:center;gap:5px;font-size:10px;color:#64748b}
+  .chg-old{font-weight:700}
+  .chg-arrow{font-size:11px;font-weight:900}
+  .chg-new{font-weight:900}
+  .chg-diff{flex-shrink:0;width:48px;text-align:right;font-size:12px;font-weight:900}
+
+  /* 랠리시간 그룹 막대 */
+  .time-row{margin-bottom:11px}
+  .time-label{font-size:11px;font-weight:900;color:#1e293b;margin-bottom:4px}
+  .time-bars{display:flex;flex-direction:column;gap:3px}
+  .tb{display:flex;align-items:center;gap:6px}
+  .tb-tag{font-size:9px;font-weight:800;width:48px;flex-shrink:0}
+  .tb-track{flex:1;height:13px;background:#f1f5f9;border-radius:4px;overflow:hidden}
+  .tb-fill{height:100%;border-radius:4px}
+  .tb-val{font-size:10px;font-weight:900;width:48px;text-align:right;flex-shrink:0}
+</style>
+</head>
+<body>
+
+<!-- 페이지 1: 실수 비교 -->
+<div class="card" id="card1">
+  <div class="hdr">
+    <div class="sub">📊 경기 비교 분석 1/2</div>
+    <div class="name" id="t1">배경은 실수 변화</div>
+    <div class="info"><span id="sub1">vs 이 → vs 김</span></div>
+  </div>
+  <div class="body" id="db1"></div>
+  <div class="bot"></div>
+</div>
+
+<!-- 페이지 2: 득점 패턴 비교 -->
+<div class="card" id="card2">
+  <div class="hdr">
+    <div class="sub">📊 경기 비교 분석 2/2</div>
+    <div class="name" id="t2">득점 패턴 비교</div>
+    <div class="info"><span id="sub2">Successful TOP3</span></div>
+  </div>
+  <div class="body" id="db2"></div>
+  <div class="bot"></div>
+</div>
+
+<script>
+const CSV_OLD=`OLD_PLACEHOLDER`;
+const CSV_NEW=`NEW_PLACEHOLDER`;
+const LABEL_OLD="vs 이";
+const LABEL_NEW="vs 김";
+
+const TM={'Smash':'스매시','Clear':'클리어','Drop':'드롭','Hairpin':'헤어핀','Drive':'드라이브','Cut':'커트','Push':'푸시','Return':'리턴','ETC':'판단미스','숏서브 리시브':'숏서브리시브','롱서브 리시브':'롱서브리시브','숏서브':'숏서브','S.Drive':'숏드라이브','Block':'블록'};
+const DM={'Left':'왼쪽','Right':'오른쪽','Middle':'중앙'};
+
+const ROWS=[[2,7,1],[6,8,5],[4,9,3]];
+const ZPOS={};
+ROWS.forEach((row,ri)=>row.forEach((z,ci)=>{ZPOS[z]={col:ci,row:ri};}));
+
+function pcsv(t){
+  const lines=t.trim().split('\n').filter(Boolean);
+  const delim=lines[0].includes(';')?';':',';
+  const h=lines[0].split(delim).map(x=>x.trim().replace(/^\uFEFF/,'').replace(/\r/g,''));
+  return lines.slice(1).map(s=>{
+    const v=s.split(delim).map(x=>x.trim().replace(/\r/g,''));
+    const o={};h.forEach((k,i)=>o[k]=v[i]||'');
+    const m=o['이름']?.match(/(\d+set)/);if(m)o['이름']=m[1];
+    if(o.Result==='Away Mistake Win')o.Result='Away Mistakes Win';
+    return o;
+  });
+}
+
+// 실수 기술+방향 퍼센트
+function mistakePct(rows){
+  const ml=rows.filter(r=>r.Result==='Mistake Lose');
+  const n=ml.length||1;
+  const c={};
+  ml.forEach(r=>{
+    const t=(TM[r.Technics]||r.Technics||'').trim();
+    const d=(DM[r.Direction]||r.Direction||'').trim();
+    if(t){const k=t+' '+d;c[k]=(c[k]||0)+1;}
+  });
+  const pct={};Object.entries(c).forEach(([k,v])=>pct[k]=Math.round(v/n*1000)/10);
+  return {pct,n};
+}
+
+// 랠리시간별 실수
+function mistakeByTime(rows){
+  const ml=rows.filter(r=>r.Result==='Mistake Lose');
+  const n=ml.length||1;
+  const segs={'~5초':0,'5~10초':0,'10~15초':0,'15초+':0};
+  ml.forEach(r=>{
+    const s=parseFloat(r['기간']||0)/1000;
+    if(s<=5)segs['~5초']++;else if(s<=10)segs['5~10초']++;else if(s<=15)segs['10~15초']++;else segs['15초+']++;
+  });
+  const pct={};Object.entries(segs).forEach(([k,v])=>pct[k]=Math.round(v/n*100));
+  return {segs,pct,n};
+}
+
+// Successful 패턴 TOP (동률 처리)
+function succPatterns(rows){
+  const sw=rows.filter(r=>r.Result==='Successful Win'&&r['패턴코트위치']?.trim());
+  const c={};
+  sw.forEach(r=>{const p=r['패턴코트위치'].trim();c[p]=(c[p]||0)+1;});
+  return Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,3);
+}
+
+// 단일 코트 그리기
+function singleCourt(seq, rank, cnt, accent){
+  const W=300, courtW=210, ox=(W-courtW)/2;
+  const halfH=95, netY=28;
+  const courtTop=netY, courtBot=netY+halfH*2;
+  const H=courtBot+22;
+  const cellW=courtW/3, cellH=halfH/3;
+  function coord(zs){
+    const m=zs.match(/(\d+)([AB])/);if(!m)return null;
+    const z=parseInt(m[1]),side=m[2],p=ZPOS[z];if(!p)return null;
+    const cx=ox+p.col*cellW+cellW/2;
+    let cy=side==='A'?netY+halfH+p.row*cellH+cellH/2:netY+halfH-(p.row*cellH+cellH/2);
+    return{x:cx,y:cy};
+  }
+  let c='';
+  c+=`<rect x="${ox}" y="${courtTop}" width="${courtW}" height="${halfH*2}" fill="#f0fdf4" stroke="#1e293b" stroke-width="1.2" rx="2"/>`;
+  c+=`<line x1="${ox-3}" y1="${netY+halfH}" x2="${ox+courtW+3}" y2="${netY+halfH}" stroke="#0f172a" stroke-width="2"/>`;
+  c+=`<text x="${ox+courtW/2}" y="${netY+halfH-2}" text-anchor="middle" font-size="5" font-weight="900" fill="#0f172a" font-family="inherit">NET</text>`;
+  for(let i=1;i<3;i++)c+=`<line x1="${ox+i*cellW}" y1="${courtTop}" x2="${ox+i*cellW}" y2="${courtBot}" stroke="#cbd5e1" stroke-width="0.5" stroke-dasharray="2,2"/>`;
+  for(let r=1;r<3;r++){c+=`<line x1="${ox}" y1="${netY+r*cellH}" x2="${ox+courtW}" y2="${netY+r*cellH}" stroke="#cbd5e1" stroke-width="0.4" stroke-dasharray="2,2"/>`;c+=`<line x1="${ox}" y1="${netY+halfH+r*cellH}" x2="${ox+courtW}" y2="${netY+halfH+r*cellH}" stroke="#cbd5e1" stroke-width="0.4" stroke-dasharray="2,2"/>`;}
+  c+=`<text x="${ox+courtW/2}" y="${courtTop-3}" text-anchor="middle" font-size="6" font-weight="900" fill="#b91c1c" font-family="inherit">상대(B)</text>`;
+  c+=`<text x="${ox+courtW/2}" y="${courtBot+11}" text-anchor="middle" font-size="6" font-weight="900" fill="#1d4ed8" font-family="inherit">우리(A)</text>`;
+  let defs=`<defs><marker id="m${accent}${rank}" markerWidth="6" markerHeight="6" refX="4" refY="2" orient="auto"><path d="M0,0 L4,2 L0,4 Z" fill="${accent}"/></marker></defs>`;
+  let arrows='';
+  for(let i=0;i<seq.length-1;i++){
+    const c1=coord(seq[i]),c2=coord(seq[i+1]);if(!c1||!c2)continue;
+    const mx=(c1.x+c2.x)/2,my=(c1.y+c2.y)/2,dx=c2.x-c1.x,dy=c2.y-c1.y,len=Math.sqrt(dx*dx+dy*dy)||1;
+    const off=Math.min(len*0.2,14),cpx=mx-dy/len*off,cpy=my+dx/len*off;
+    arrows+=`<path d="M${c1.x.toFixed(1)},${c1.y.toFixed(1)} Q${cpx.toFixed(1)},${cpy.toFixed(1)} ${c2.x.toFixed(1)},${c2.y.toFixed(1)}" fill="none" stroke="${accent}" stroke-width="2.5" opacity="0.8" marker-end="url(#m${accent}${rank})"/>`;
+  }
+  let dots='';
+  seq.forEach((z,i)=>{const co=coord(z);if(!co)return;const isEnd=i===seq.length-1;dots+=`<circle cx="${co.x.toFixed(1)}" cy="${co.y.toFixed(1)}" r="${isEnd?7:5.5}" fill="${isEnd?accent:'#64748b'}"/><text x="${co.x.toFixed(1)}" y="${(co.y+2.5).toFixed(1)}" text-anchor="middle" font-size="7" font-weight="900" fill="#fff" font-family="inherit">${i+1}</text>`;});
+  return `<svg width="100%" viewBox="0 0 ${W} ${H}" style="display:block">${defs}${c}${arrows}${dots}</svg>`;
+}
+
+function render(){
+  const oldRows=pcsv(CSV_OLD), newRows=pcsv(CSV_NEW);
+
+  // ── 페이지 1: 실수 변화 ─────────────────────────────────────
+  const {pct:op,n:on}=mistakePct(oldRows);
+  const {pct:np,n:nn}=mistakePct(newRows);
+  const keys=[...new Set([...Object.keys(op),...Object.keys(np)])];
+  const changes=keys.map(k=>({k,old:op[k]||0,new:np[k]||0,diff:Math.round(((np[k]||0)-(op[k]||0))*10)/10}));
+  const improved=changes.filter(c=>c.diff<0).sort((a,b)=>a.diff-b.diff);
+  const worsened=changes.filter(c=>c.diff>0).sort((a,b)=>b.diff-a.diff);
+
+  function chgRow(c,color){
+    return`<div class="chg-row">
+      <div class="chg-name">${c.k}</div>
+      <div class="chg-bars">
+        <span class="chg-old">${c.old}%</span>
+        <span class="chg-arrow" style="color:${color}">→</span>
+        <span class="chg-new" style="color:${color}">${c.new}%</span>
+      </div>
+      <div class="chg-diff" style="color:${color}">${c.diff>0?'+':''}${c.diff}%p</div>
+    </div>`;
+  }
+
+  // 랠리시간별 실수
+  const ot=mistakeByTime(oldRows), nt=mistakeByTime(newRows);
+  const timeHTML=['~5초','5~10초','10~15초','15초+'].map(seg=>{
+    const ov=ot.pct[seg], nv=nt.pct[seg];
+    const worse=nv>ov;
+    return`<div class="time-row">
+      <div class="time-label">${seg}</div>
+      <div class="time-bars">
+        <div class="tb"><div class="tb-tag" style="color:#0891b2">${LABEL_OLD}</div><div class="tb-track"><div class="tb-fill" style="width:${ov}%;background:#0891b2"></div></div><div class="tb-val" style="color:#0891b2">${ot.segs[seg]}회·${ov}%</div></div>
+        <div class="tb"><div class="tb-tag" style="color:#ea580c">${LABEL_NEW}</div><div class="tb-track"><div class="tb-fill" style="width:${nv}%;background:#ea580c"></div></div><div class="tb-val" style="color:#ea580c">${nt.segs[seg]}회·${nv}%</div></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('db1').innerHTML=`
+    <div class="s">
+      <div class="stl">✅ 개선된 실수 (감소)</div>
+      ${improved.length?improved.map(c=>chgRow(c,'#16a34a')).join(''):'<div style="font-size:11px;color:#94a3b8">없음</div>'}
+    </div>
+    <div class="s">
+      <div class="stl">⚠️ 악화된 실수 (증가)</div>
+      ${worsened.length?worsened.map(c=>chgRow(c,'#dc2626')).join(''):'<div style="font-size:11px;color:#94a3b8">없음</div>'}
+    </div>
+    <div class="s">
+      <div class="stl">⏱ 랠리 시간별 실수 변화</div>
+      ${timeHTML}
+      <div style="font-size:9px;color:#94a3b8;margin-top:2px">실수 ${LABEL_OLD} ${on}회 / ${LABEL_NEW} ${nn}회 · 각 경기 대비 %</div>
+    </div>`;
+
+  // ── 페이지 2: 득점 패턴 비교 ────────────────────────────────
+  const oldPat=succPatterns(oldRows);
+  const newPat=succPatterns(newRows);
+
+  function patBlock(pats, accent, label){
+    if(!pats.length)return'<div style="font-size:11px;color:#94a3b8">패턴 없음</div>';
+    return pats.map(([p,cnt],i)=>{
+      const seq=p.split(';').map(x=>x.trim());
+      return`<div style="margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:5px;margin-bottom:2px">
+          <span style="width:16px;height:16px;border-radius:50%;background:${accent};color:#fff;font-size:9px;font-weight:900;display:flex;align-items:center;justify-content:center">${i+1}</span>
+          <span style="font-size:10px;font-weight:800;color:#1e293b">${seq.join(' → ')}</span>
+          <span style="font-size:9px;font-weight:800;color:${accent};margin-left:auto">${cnt}회</span>
+        </div>
+        ${singleCourt(seq,i+1,cnt,accent)}
+      </div>`;
+    }).join('');
+  }
+
+  document.getElementById('db2').innerHTML=`
+    <div class="s">
+      <div class="stl" style="color:#0891b2">🔵 ${LABEL_OLD} 득점 패턴 TOP${oldPat.length}</div>
+      ${patBlock(oldPat,'#0891b2',LABEL_OLD)}
+    </div>
+    <div class="s">
+      <div class="stl" style="color:#ea580c">🟠 ${LABEL_NEW} 득점 패턴 TOP${newPat.length}</div>
+      ${patBlock(newPat,'#ea580c',LABEL_NEW)}
+    </div>`;
+}
+
+render();
+</script>
+</body>
+</html>
