@@ -122,11 +122,12 @@ function succPatterns(rows){
   const sw=rows.filter(r=>r.Result==='Successful Win'&&r['패턴코트위치']?.trim());
   const c={};
   sw.forEach(r=>{const p=r['패턴코트위치'].trim();c[p]=(c[p]||0)+1;});
-  return Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,3);
+  const total=sw.length;
+  return {top:Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,3), total};
 }
 
 // 단일 코트 그리기
-function singleCourt(seq, rank, cnt, accent){
+function singleCourt(seq, rank, pct, accent, curved){
   const W=120, courtW=104, ox=(W-courtW)/2;
   const halfH=80, netY=20;
   const courtTop=netY, courtBot=netY+halfH*2;
@@ -140,18 +141,27 @@ function singleCourt(seq, rank, cnt, accent){
     return{x:cx,y:cy};
   }
   let c='';
-  c+=`<rect x="${ox}" y="${courtTop}" width="${courtW}" height="${halfH*2}" fill="#f0fdf4" stroke="#1e293b" stroke-width="1" rx="2"/>`;
-  c+=`<line x1="${ox-2}" y1="${netY+halfH}" x2="${ox+courtW+2}" y2="${netY+halfH}" stroke="#0f172a" stroke-width="1.5"/>`;
-  for(let i=1;i<3;i++)c+=`<line x1="${(ox+i*cellW).toFixed(1)}" y1="${courtTop}" x2="${(ox+i*cellW).toFixed(1)}" y2="${courtBot}" stroke="#cbd5e1" stroke-width="0.4" stroke-dasharray="2,2"/>`;
-  for(let r=1;r<3;r++){c+=`<line x1="${ox}" y1="${(netY+r*cellH).toFixed(1)}" x2="${ox+courtW}" y2="${(netY+r*cellH).toFixed(1)}" stroke="#cbd5e1" stroke-width="0.3" stroke-dasharray="2,2"/>`;c+=`<line x1="${ox}" y1="${(netY+halfH+r*cellH).toFixed(1)}" x2="${ox+courtW}" y2="${(netY+halfH+r*cellH).toFixed(1)}" stroke="#cbd5e1" stroke-width="0.3" stroke-dasharray="2,2"/>`;}
+  c+=`<rect x="${ox}" y="${courtTop}" width="${courtW}" height="${halfH*2}" fill="#f0fdf4" stroke="#1e293b" stroke-width="1.2" rx="2"/>`;
+  c+=`<line x1="${ox-2}" y1="${netY+halfH}" x2="${ox+courtW+2}" y2="${netY+halfH}" stroke="#0f172a" stroke-width="1.8"/>`;
+  // 9분할 선 진하게
+  for(let i=1;i<3;i++)c+=`<line x1="${(ox+i*cellW).toFixed(1)}" y1="${courtTop}" x2="${(ox+i*cellW).toFixed(1)}" y2="${courtBot}" stroke="#64748b" stroke-width="0.8" stroke-dasharray="3,2"/>`;
+  for(let r=1;r<3;r++){c+=`<line x1="${ox}" y1="${(netY+r*cellH).toFixed(1)}" x2="${ox+courtW}" y2="${(netY+r*cellH).toFixed(1)}" stroke="#64748b" stroke-width="0.7" stroke-dasharray="3,2"/>`;c+=`<line x1="${ox}" y1="${(netY+halfH+r*cellH).toFixed(1)}" x2="${ox+courtW}" y2="${(netY+halfH+r*cellH).toFixed(1)}" stroke="#64748b" stroke-width="0.7" stroke-dasharray="3,2"/>`;}
   c+=`<text x="${ox+courtW/2}" y="${courtTop-3}" text-anchor="middle" font-size="5" font-weight="900" fill="#b91c1c" font-family="inherit">B</text>`;
   c+=`<text x="${ox+courtW/2}" y="${courtBot+10}" text-anchor="middle" font-size="5" font-weight="900" fill="#1d4ed8" font-family="inherit">A</text>`;
   let defs=`<defs><marker id="m${accent.replace('#','')}${rank}" markerWidth="6" markerHeight="6" refX="4.5" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 Z" fill="${accent}"/></marker></defs>`;
   let arrows='';
-  // 직선 화살표
+  // curved=false면 직선, true면 rank별로 다른 방향 곡선
+  const curveDir = rank===1?0 : rank===2?1 : -1; // 1번 직선, 2번 우측휨, 3번 좌측휨
   for(let i=0;i<seq.length-1;i++){
     const c1=coord(seq[i]),c2=coord(seq[i+1]);if(!c1||!c2)continue;
-    arrows+=`<line x1="${c1.x.toFixed(1)}" y1="${c1.y.toFixed(1)}" x2="${c2.x.toFixed(1)}" y2="${c2.y.toFixed(1)}" stroke="${accent}" stroke-width="2" opacity="0.85" marker-end="url(#m${accent.replace('#','')}${rank})"/>`;
+    if(curved && curveDir!==0){
+      const mx=(c1.x+c2.x)/2,my=(c1.y+c2.y)/2,dx=c2.x-c1.x,dy=c2.y-c1.y,len=Math.sqrt(dx*dx+dy*dy)||1;
+      const off=Math.min(len*0.28,16)*curveDir;
+      const cpx=mx-dy/len*off,cpy=my+dx/len*off;
+      arrows+=`<path d="M${c1.x.toFixed(1)},${c1.y.toFixed(1)} Q${cpx.toFixed(1)},${cpy.toFixed(1)} ${c2.x.toFixed(1)},${c2.y.toFixed(1)}" fill="none" stroke="${accent}" stroke-width="2" opacity="0.85" marker-end="url(#m${accent.replace('#','')}${rank})"/>`;
+    }else{
+      arrows+=`<line x1="${c1.x.toFixed(1)}" y1="${c1.y.toFixed(1)}" x2="${c2.x.toFixed(1)}" y2="${c2.y.toFixed(1)}" stroke="${accent}" stroke-width="2" opacity="0.85" marker-end="url(#m${accent.replace('#','')}${rank})"/>`;
+    }
   }
   let dots='';
   seq.forEach((z,i)=>{const co=coord(z);if(!co)return;const isEnd=i===seq.length-1;dots+=`<circle cx="${co.x.toFixed(1)}" cy="${co.y.toFixed(1)}" r="${isEnd?6:5}" fill="${isEnd?accent:'#64748b'}"/><text x="${co.x.toFixed(1)}" y="${(co.y+2.2).toFixed(1)}" text-anchor="middle" font-size="6" font-weight="900" fill="#fff" font-family="inherit">${i+1}</text>`;});
@@ -216,19 +226,20 @@ function render(){
     </div>`;
 
   // ── 페이지 2: 득점 패턴 비교 ────────────────────────────────
-  const oldPat=succPatterns(oldRows);
-  const newPat=succPatterns(newRows);
+  const oldPatR=succPatterns(oldRows), oldPat=oldPatR.top, oldTotal=oldPatR.total;
+  const newPatR=succPatterns(newRows), newPat=newPatR.top, newTotal=newPatR.total;
 
-  function patBlock(pats, accent, label){
+  function patBlock(pats, accent, label, total, curved){
     if(!pats.length)return'<div style="font-size:11px;color:#94a3b8">패턴 없음</div>';
     const items=pats.map(([p,cnt],i)=>{
       const seq=fixPattern(p);
+      const pct=Math.round(cnt/total*100);
       return`<div style="flex:1">
         <div style="display:flex;align-items:center;gap:3px;margin-bottom:3px;justify-content:center">
           <span style="width:15px;height:15px;border-radius:50%;background:${accent};color:#fff;font-size:9px;font-weight:900;display:flex;align-items:center;justify-content:center">${i+1}</span>
-          <span style="font-size:10px;font-weight:900;color:${accent}">${cnt}회</span>
+          <span style="font-size:11px;font-weight:900;color:${accent}">${pct}%</span>
         </div>
-        ${singleCourt(seq,i+1,cnt,accent)}
+        ${singleCourt(seq,i+1,pct,accent,curved)}
         <div style="font-size:8px;font-weight:800;color:#475569;text-align:center;margin-top:2px;line-height:1.3">${seq.join('→')}</div>
       </div>`;
     }).join('');
@@ -238,11 +249,13 @@ function render(){
   document.getElementById('db2').innerHTML=`
     <div class="s">
       <div class="stl" style="color:#0891b2">🔵 ${LABEL_OLD} 득점 패턴 TOP${oldPat.length}</div>
-      ${patBlock(oldPat,'#0891b2',LABEL_OLD)}
+      ${patBlock(oldPat,'#0891b2',LABEL_OLD,oldTotal,false)}
+      <div style="font-size:8px;color:#94a3b8;text-align:center;margin-top:4px">전체 득점 패턴 ${oldTotal}개 대비 %</div>
     </div>
     <div class="s">
       <div class="stl" style="color:#ea580c">🟠 ${LABEL_NEW} 득점 패턴 TOP${newPat.length}</div>
-      ${patBlock(newPat,'#ea580c',LABEL_NEW)}
+      ${patBlock(newPat,'#ea580c',LABEL_NEW,newTotal,true)}
+      <div style="font-size:8px;color:#94a3b8;text-align:center;margin-top:4px">전체 득점 패턴 ${newTotal}개 대비 %</div>
     </div>`;
 }
 
