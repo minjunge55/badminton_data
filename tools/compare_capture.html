@@ -68,9 +68,11 @@ const LABEL_NEW="vs 김민선";
 const TM={'Smash':'스매시','Clear':'클리어','Drop':'드롭','Hairpin':'헤어핀','Drive':'드라이브','Cut':'커트','Push':'푸시','Return':'리턴','ETC':'판단미스','숏서브 리시브':'숏서브리시브','롱서브 리시브':'롱서브리시브','숏서브':'숏서브','S.Drive':'숏드라이브','Block':'블록'};
 const DM={'Left':'왼쪽','Right':'오른쪽','Middle':'중앙'};
 
-const ROWS=[[2,7,1],[6,8,5],[4,9,3]];
-const ZPOS={};
-ROWS.forEach((row,ri)=>row.forEach((z,ci)=>{ZPOS[z]={col:ci,row:ri};}));
+const A_ROWS=[[2,7,1],[6,8,5],[4,9,3]];
+const B_ROWS=[[3,9,4],[5,8,6],[1,7,2]];
+const ZPOS_A={}, ZPOS_B={};
+A_ROWS.forEach((row,ri)=>row.forEach((z,ci)=>{ZPOS_A[z]={col:ci,row:ri};}));
+B_ROWS.forEach((row,ri)=>row.forEach((z,ci)=>{ZPOS_B[z]={col:ci,row:ri};}));
 
 function pcsv(t){
   const lines=t.trim().split('\n').filter(Boolean);
@@ -135,9 +137,12 @@ function singleCourt(seq, rank, pct, accent, curved){
   const cellW=courtW/3, cellH=halfH/3;
   function coord(zs){
     const m=zs.match(/(\d+)([AB])/);if(!m)return null;
-    const z=parseInt(m[1]),side=m[2],p=ZPOS[z];if(!p)return null;
+    const z=parseInt(m[1]),side=m[2];
+    const p=side==='A'?ZPOS_A[z]:ZPOS_B[z];if(!p)return null;
     const cx=ox+p.col*cellW+cellW/2;
-    let cy=side==='A'?netY+halfH+p.row*cellH+cellH/2:netY+halfH-(p.row*cellH+cellH/2);
+    // A: 하단(네트가 위), row0이 네트쪽 → netY+halfH + row*cellH
+    // B: 상단(네트가 아래), B_ROWS는 row0=베이스라인(위) → netY + row*cellH
+    let cy=side==='A' ? netY+halfH+p.row*cellH+cellH/2 : netY+p.row*cellH+cellH/2;
     return{x:cx,y:cy};
   }
   let c='';
