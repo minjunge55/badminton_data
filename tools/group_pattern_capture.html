@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:#fff}
+  .card{width:390px;min-height:844px;background:#fff;display:flex;flex-direction:column;overflow:visible}
+  .hdr{background:#f0fdf4;padding:10px 14px 8px;border-bottom:1px solid #bbf7d0}
+  .sub{font-size:7px;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:2px}
+  .name{font-size:22px;font-weight:900;color:#14532d;line-height:1.1}
+  .info{font-size:11px;color:#64748b;margin-top:3px}
+  .body{flex:1;padding:10px 12px;display:flex;flex-direction:column;gap:12px}
+  .s{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px}
+  .stl{font-size:11px;font-weight:900;letter-spacing:.5px;margin-bottom:12px}
+  .bot{height:8px;background:linear-gradient(90deg,#16a34a,#0891b2);flex-shrink:0}
+
+  .legend{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+  .lg{display:flex;align-items:center;gap:4px;font-size:9px;font-weight:800;color:#475569}
+  .lg-dot{width:11px;height:11px;border-radius:3px}
+
+  .gp-row{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+  .gp-rank{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#fff;flex-shrink:0}
+  .gp-seq{flex-shrink:0;display:flex;align-items:center;gap:3px;width:150px}
+  .gp-tag{font-size:10px;font-weight:900;padding:2px 7px;border-radius:6px}
+  .gp-arrow{font-size:9px;color:#94a3b8;font-weight:900}
+  .gp-bar{flex:1;height:15px;background:#f1f5f9;border-radius:5px;overflow:hidden}
+  .gp-fill{height:100%;border-radius:5px}
+  .gp-pct{flex-shrink:0;width:42px;text-align:right;font-size:13px;font-weight:900}
+</style>
+</head>
+<body>
+<div class="card" id="card">
+  <div class="hdr">
+    <div class="sub">🎯 득점 패턴 그룹 분석</div>
+    <div class="name" id="t1">배경은 득점 루트</div>
+    <div class="info"><span id="sub1">앞 · 사이드 · 뒤 구역별</span></div>
+  </div>
+  <div class="body" id="db"></div>
+  <div class="bot"></div>
+</div>
+
+<script>
+const CSV_OLD=`OLD_PLACEHOLDER`;
+const CSV_NEW=`NEW_PLACEHOLDER`;
+const LABEL_OLD="vs 이다희";
+const LABEL_NEW="vs 김민선";
+
+// 존 그룹: 1,7,2=앞 / 5,8,6=사이드 / 3,9,4=뒤
+const ZONE_GROUP={};
+[1,7,2].forEach(z=>ZONE_GROUP[z]='앞');
+[5,8,6].forEach(z=>ZONE_GROUP[z]='사이드');
+[3,9,4].forEach(z=>ZONE_GROUP[z]='뒤');
+const GCOLOR={'앞':{bg:'#dbeafe',tx:'#1d4ed8'},'사이드':{bg:'#fef3c7',tx:'#b45309'},'뒤':{bg:'#fce7f3',tx:'#be185d'}};
+
+function pcsv(t){
+  const lines=t.trim().split('\n').filter(Boolean);
+  const delim=lines[0].includes(';')?';':',';
+  const h=lines[0].split(delim).map(x=>x.trim().replace(/^\uFEFF/,'').replace(/\r/g,''));
+  return lines.slice(1).map(s=>{
+    const v=s.split(delim).map(x=>x.trim().replace(/\r/g,''));
+    const o={};h.forEach((k,i)=>o[k]=v[i]||'');
+    if(o.Result==='Away Mistake Win')o.Result='Away Mistakes Win';
+    return o;
+  });
+}
+
+function fixPattern(p){
+  const seq=p.split(';').map(x=>x.trim()).filter(Boolean);
+  if(seq.length===2)return [seq[1],seq[0],seq[1]];
+  return seq;
+}
+
+function toGroups(seq){
+  return seq.map(z=>{
+    const m=z.match(/(\d+)([AB])/);
+    return m?ZONE_GROUP[parseInt(m[1])]||'?':'?';
+  });
+}
+
+function groupPatterns(rows){
+  const sw=rows.filter(r=>r.Result==='Successful Win'&&r['패턴코트위치']?.trim());
+  const c={};
+  sw.forEach(r=>{
+    const seq=fixPattern(r['패턴코트위치'].trim());
+    const g=toGroups(seq).join(' ');
+    c[g]=(c[g]||0)+1;
+  });
+  return {sorted:Object.entries(c).sort((a,b)=>b[1]-a[1]), total:sw.length};
+}
+
+function patternBlock(data, accent){
+  const {sorted,total}=groupPatterns(data);
+  const max=sorted.length?sorted[0][1]:1;
+  return sorted.slice(0,6).map(([gp,cnt],i)=>{
+    const groups=gp.split(' ');
+    const pct=Math.round(cnt/total*100);
+    const rc=i===0?accent:i<3?'#64748b':'#94a3b8';
+    const seqHTML=groups.map((g,j)=>{
+      const gc=GCOLOR[g]||{bg:'#f1f5f9',tx:'#475569'};
+      return`${j>0?'<span class="gp-arrow">→</span>':''}<span class="gp-tag" style="background:${gc.bg};color:${gc.tx}">${g}</span>`;
+    }).join('');
+    return`<div class="gp-row">
+      <div class="gp-rank" style="background:${rc}">${i+1}</div>
+      <div class="gp-seq">${seqHTML}</div>
+      <div class="gp-bar"><div class="gp-fill" style="width:${Math.round(cnt/max*100)}%;background:${accent}"></div></div>
+      <div class="gp-pct" style="color:${accent}">${pct}%</div>
+    </div>`;
+  }).join('');
+}
+
+function render(){
+  const oldRows=pcsv(CSV_OLD), newRows=pcsv(CSV_NEW);
+  const oldTotal=groupPatterns(oldRows).total;
+  const newTotal=groupPatterns(newRows).total;
+
+  const legend=`<div class="legend">
+    <div class="lg"><span class="lg-dot" style="background:#1d4ed8"></span>앞 (1·7·2)</div>
+    <div class="lg"><span class="lg-dot" style="background:#b45309"></span>사이드 (5·8·6)</div>
+    <div class="lg"><span class="lg-dot" style="background:#be185d"></span>뒤 (3·9·4)</div>
+  </div>`;
+
+  document.getElementById('db').innerHTML=`
+    <div class="s">${legend}<div style="font-size:9px;color:#94a3b8;margin-top:-4px">셔틀이 거쳐간 구역 순서 · 마지막=득점 지점</div></div>
+    <div class="s">
+      <div class="stl" style="color:#0891b2">🔵 ${LABEL_OLD} 득점 루트 (${oldTotal}개)</div>
+      ${patternBlock(oldRows,'#0891b2')}
+    </div>
+    <div class="s">
+      <div class="stl" style="color:#ea580c">🟠 ${LABEL_NEW} 득점 루트 (${newTotal}개)</div>
+      ${patternBlock(newRows,'#ea580c')}
+    </div>`;
+}
+
+render();
+</script>
+</body>
+</html>
