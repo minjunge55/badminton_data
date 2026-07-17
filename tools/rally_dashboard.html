@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>랠리 분석 대시보드</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:#f1f5f9;padding:16px}
+  .wrap{max-width:900px;margin:0 auto}
+  h1{font-size:22px;font-weight:900;color:#0f172a;margin-bottom:4px}
+  .sub{font-size:12px;color:#64748b;margin-bottom:16px}
+  .card{background:#fff;border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+  .ct{font-size:13px;font-weight:900;color:#334155;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:14px}
+  .kpi{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px;text-align:center}
+  .kl{font-size:9px;font-weight:800;color:#64748b;margin-bottom:4px}
+  .kvs{display:flex;align-items:baseline;justify-content:center;gap:4px}
+  .kv1{font-size:16px;font-weight:900;color:#0891b2}
+  .karr{font-size:10px;color:#94a3b8}
+  .kv2{font-size:16px;font-weight:900;color:#ea580c}
+
+  .chart{width:100%;height:200px;position:relative;margin-top:8px}
+  .legend{display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;font-size:10px;font-weight:700;color:#475569}
+  .lg{display:flex;align-items:center;gap:4px}
+  .lgd{width:12px;height:12px;border-radius:3px}
+
+  .tiles{display:flex;flex-wrap:wrap;gap:3px;margin-top:6px}
+  .tile{width:26px;border-radius:4px;overflow:hidden;text-align:center;padding-bottom:2px}
+  .tset{height:3px}
+  .tsec{font-size:9px;font-weight:900;padding-top:2px}
+  .tscore{font-size:6px;font-weight:800;color:#334155;background:rgba(0,0,0,.06);border-radius:2px;margin:1px 1px 0}
+
+  .gp-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .gp-rank{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#fff;flex-shrink:0}
+  .gp-seq{flex-shrink:0;display:flex;align-items:center;gap:3px;width:170px}
+  .gp-tag{font-size:10px;font-weight:900;padding:2px 7px;border-radius:6px}
+  .gp-arrow{font-size:9px;color:#94a3b8;font-weight:900}
+  .gp-bar{flex:1;height:14px;background:#f1f5f9;border-radius:4px;overflow:hidden}
+  .gp-fill{height:100%;border-radius:4px}
+  .gp-pct{flex-shrink:0;width:40px;text-align:right;font-size:12px;font-weight:900}
+
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:640px){.two{grid-template-columns:1fr}}
+  .mh{font-size:11px;font-weight:900;margin-bottom:8px;padding:4px 8px;border-radius:6px;display:inline-block}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>배경은 랠리 분석 대시보드</h1>
+  <div class="sub">vs 이다희 · vs 김민선 비교</div>
+  <div id="app"></div>
+</div>
+
+<script>
+const CSV_A=`이름,위치,기간,Badminton Total,Direction,Rally,Result,Technics,점수,패턴코트위치,뒷사각
+1set (1),119933,20633,0:0,Right,1set,Mistake Lose,Clear,0:0,,
+1set (2),149100,13933,0:0,,1set,Away Mistake Win,,0:0,,
+1set (3),174900,22266,0:0,Left,1set,Mistake Lose,Clear,0:0,,
+1set (4),210100,6200,0:0,,1set,Away Mistake Win,,0:0,,
+1set (5),230633,6000,0:0,,1set,Successful Win,,0:0,1B;1A;4B,
+1set (6),249300,5666,0:0,,1set,Away Mistake Win,,0:0,,
+1set (7),263500,21400,0:0,,1set,Successful Win,,0:0,2B;2A;1B,
+1set (8),300900,10600,0:0,Left,1set,Mistake Lose,Smash,0:0,,
+1set (9),322500,8066,0:0,,1set,Successful Win,,0:0,3A;1B,
+1set (10),343233,8800,0:0,,1set,Successful Win,,0:0,2B;1A;3B,
+1set (11),380933,5100,0:0,,1set,Away Successful Lose,,0:0,4A;3B;1A,뒤앞
+1set (12),401766,20200,0:0,,1set,Successful Win,,0:0,5B;2A;4B,
+1set (13),440166,17533,0:0,,1set,Away Successful Lose,,0:0,1A;4B;4A,앞뒤
+1set (14),480166,9666,0:0,,1set,Away Mistake Win,,0:0,,
+1set (15),502300,25466,0:0,,1set,Successful Win,,0:0,3B;4A;2B,
+1set (16),560300,7733,0:0,Right,1set,Mistake Lose,Drop,0:0,,
+1set (17),589733,4366,0:0,,1set,Away Successful Lose,,0:0,3A;4B;2A,뒤앞
+1set (18),609833,5133,0:0,Left,1set,Mistake Lose,숏서브 리시브,0:0,,
+1set (19),625033,11000,0:0,,1set,Away Mistake Win,,0:0,,
+1set (20),698266,5066,0:0,,1set,Successful Win,,0:0,2B;3A;1B,
+1set (21),713400,19600,0:0,,1set,Away Mistake Win,,0:0,,
+1set (22),754866,5400,0:0,,1set,Away Successful Lose,,0:0,3A;2B;2A,뒤앞
+1set (23),775200,12800,0:0,,1set,Away Mistake Win,,0:0,,
+1set (24),802533,14200,0:0,,1set,Successful Win,,0:0,5B;2A;3B,
+1set (25),845600,10066,0:0,,1set,Successful Win,,0:0,2B;1A;3B,
+1set (26),869333,9933,0:0,Left,1set,Mistake Lose,Smash,0:0,,
+1set (27),891333,10133,0:0,,1set,Away Mistake Win,,0:0,,
+1set (28),922133,20933,0:0,,1set,Successful Win,,0:0,5B;2A;3B,
+1set (29),980066,21600,0:0,,1set,Away Successful Lose,,0:0,3A;4B;6A,뒤뒤
+1set (30),1026066,4600,0:0,,1set,Successful Win,,0:0,7B;4A;6B,
+1set (31),1043800,12400,0:0,,1set,Successful Win,,0:0,8B;4A;6B,
+1set (32),1067666,15533,0:0,,1set,Successful Win,,0:0,1B;3A;4B,
+2set (1),1184000,29866,0:0,Left,2set,Mistake Lose,Smash,0:0,,
+2set (2),1232000,4933,0:0,Left,2set,Mistake Lose,숏서브 리시브,0:0,,
+2set (3),1251066,6133,0:0,,2set,Away Mistake Win,,0:0,,
+2set (4),1271433,7800,0:0,,2set,Away Successful Lose,,0:0,4A;5B;1A,뒤앞
+2set (5),1300933,16000,0:0,,2set,Successful Win,,0:0,2B;4A;1B,
+2set (6),1337533,25133,0:0,,2set,Away Successful Lose,,0:0,2A;4B;4A,앞뒤
+2set (7),1392200,6933,0:0,,2set,Away Mistake Win,,0:0,,
+2set (8),1445200,5000,0:0,,2set,Successful Win,,0:0,2B;4A;6B,
+2set (9),1471600,12666,0:0,,2set,Away Mistake Win,,0:0,,
+2set (10),1500200,3800,0:0,,2set,Away Mistake Win,,0:0,,
+2set (11),1516533,7733,0:0,,2set,Successful Win,,0:0,2B;3A;6B,
+2set (12),1539400,16400,0:0,,2set,Away Mistake Win,,0:0,,
+2set (13),1572066,5933,0:0,,2set,Away Mistake Win,,0:0,,
+2set (14),1594266,13866,0:0,Left,2set,Mistake Lose,Drop,0:0,,
+2set (15),1625466,5200,0:0,Left,2set,Mistake Lose,숏서브 리시브,0:0,,
+2set (16),1653266,5800,0:0,,2set,Away Successful Lose,,0:0,7A;3B;2A,앞사이드
+2set (17),1672333,24000,0:0,,2set,Away Mistake Win,,0:0,,
+2set (18),1743400,7133,0:0,Left,2set,Mistake Lose,Drop,0:0,,
+2set (19),1783466,20733,0:0,,2set,Successful Win,,0:0,1B;3A;5B,
+2set (20),1919666,39666,0:0,,2set,Away Mistake Win,,0:0,,
+2set (21),1999333,14400,0:0,,2set,Successful Win,,0:0,1B;2A;4B,
+2set (22),2060033,7366,0:0,,2set,Away Successful Lose,,0:0,7A;4B;1A,앞사이드
+2set (23),2100366,6633,0:0,,2set,Away Successful Lose,,0:0,3B;2A,앞사이드
+2set (24),2136533,9933,0:0,Right,2set,Mistake Lose,Drop,0:0,,
+2set (25),2165466,9200,0:0,,2set,Successful Win,,0:0,3B;4A;5B,
+2set (26),2195066,6533,0:0,Right,2set,Mistake Lose,ETC,0:0,,
+2set (27),2213066,13800,0:0,Right,2set,Mistake Lose,Smash,0:0,,
+2set (28),2256400,22133,0:0,Left,2set,Mistake Lose,Drop,0:0,,
+2set (29),2300466,6533,0:0,,2set,Away Mistake Win,,0:0,,
+2set (30),2318533,21866,0:0,Left,2set,Mistake Lose,Smash,0:0,,
+2set (31),2376533,5400,0:0,Left,2set,Mistake Lose,Clear,0:0,,
+2set (32),2395066,5600,0:0,,2set,Successful Win,,0:0,8B;3A;6B,
+2set (33),2418500,5500,0:0,,2set,Away Successful Lose,,0:0,2A;3B;1A,앞사이드
+2set (34),2460266,9400,0:0,Middle,2set,Mistake Lose,Hairpin,0:0,,
+2set (35),2481600,11733,0:0,,2set,Successful Win,,0:0,4B;4A;6B,
+2set (36),2523266,4600,0:0,,2set,Away Successful Lose,,0:0,7A;3B;1A,앞사이드
+2set (37),2547266,8000,0:0,,2set,Successful Win,,0:0,1B;3A;2B,
+2set (38),2572600,14866,0:0,,2set,Away Mistake Win,,0:0,,
+2set (39),2646400,13533,0:0,,2set,Away Successful Lose,,0:0,2B;1A,앞앞
+2set (40),2680400,7666,0:0,Right,2set,Mistake Lose,Push,0:0,,
+3set (1),2816100,20400,0:0,,3set,Successful Win,,0:0,2B;4A;5B,
+3set (2),2853233,19833,0:0,,3set,Successful Win,,0:0,3B;4A;1B,
+3set (3),2891166,3866,0:0,,3set,Away Mistake Win,,0:0,,
+3set (4),2909700,18533,0:0,Right,3set,Mistake Lose,ETC,0:0,,
+3set (5),2960133,5800,0:0,,3set,Successful Win,,0:0,2B;4A;5B,
+3set (6),2984233,11200,0:0,,3set,Away Successful Lose,,0:0,3A;3B;5A,뒤사이드
+3set (7),3009633,42133,0:0,,3set,Away Successful Lose,,0:0,2A;4B;5A,뒤사이드
+3set (8),3099433,18133,0:0,,3set,Successful Win,,0:0,2B;2A;1B,
+3set (9),3140700,5333,0:0,,3set,Away Successful Lose,,0:0,8A;2B;3A,사이드뒤
+3set (10),3166733,10300,0:0,Left,3set,Mistake Lose,Smash,0:0,,
+3set (11),3193566,18533,0:0,,3set,Away Mistake Win,,0:0,,
+3set (12),3239133,7733,0:0,,3set,Away Successful Lose,,0:0,3B;1A,앞사이드
+3set (13),3289533,5166,0:0,,3set,Away Successful Lose,,0:0,3A;2B;2A,뒤앞
+3set (14),3316366,14733,0:0,,3set,Away Mistake Win,,0:0,,
+3set (15),3352233,12400,0:0,,3set,Away Mistake Win,,0:0,,
+3set (16),3384900,8133,0:0,,3set,Away Mistake Win,,0:0,,
+3set (17),3421233,21333,0:0,,3set,Successful Win,,0:0,1B;3A;6B,
+3set (18),3496966,6766,0:0,,3set,Away Successful Lose,,0:0,4B;2A,앞사이드
+3set (19),3582233,10933,0:0,Right,3set,Mistake Lose,Clear,0:0,,
+3set (20),3605966,4866,0:0,,3set,Away Successful Lose,,0:0,,
+3set (21),3628233,11533,0:0,,3set,Successful Win,,0:0,2B;4A;5B,
+3set (22),3721166,18400,0:0,Left,3set,Mistake Lose,Hairpin,0:0,,
+3set (23),3766033,5400,0:0,Right,3set,Mistake Lose,Smash,0:0,,
+3set (24),3783033,14466,0:0,Right,3set,Mistake Lose,Return,0:0,,
+3set (25),3817166,4466,0:0,Left,3set,Mistake Lose,숏서브 리시브,0:0,,
+3set (26),3835100,7266,0:0,,3set,Successful Win,,0:0,3B;3A;5B,
+3set (27),3857900,11600,0:0,Left,3set,Mistake Lose,Drop,0:0,,
+3set (28),3893300,12466,0:0,,3set,Away Mistake Win,,0:0,,
+3set (29),3921100,30600,0:0,Left,3set,Mistake Lose,Clear,0:0,,
+3set (30),4010233,25466,0:0,Left,3set,Mistake Lose,Clear,0:0,,
+3set (31),4058033,11600,0:0,,3set,Successful Win,,0:0,3A;1B,
+3set (32),4092900,5066,0:0,,3set,Away Successful Lose,,0:0,8A;1B;1A,사이드앞
+3set (33),4114633,19266,0:0,,3set,Away Successful Lose,,0:0,3A;4B;4A,뒤뒤
+3set (34),4154100,27266,0:0,Left,3set,Mistake Lose,Smash,0:0,,
+3set (35),4203966,8266,0:0,,3set,Successful Win,,0:0,1B;3A;5B,
+3set (36),4242633,5800,0:0,,3set,Successful Win,,0:0,2B;4A;8B,
+3set (37),4264433,8066,0:0,,3set,Successful Win,,0:0,5B;2A;3B,
+3set (38),4285966,14666,0:0,,3set,Successful Win,,0:0,5B;2A;4B,
+3set (39),4324700,4333,0:0,,3set,Away Successful Lose,,0:0,8A;1B;1A,사이드앞`;
+const CSV_B=`이름,위치,기간,Result,Technics,Direction,패턴코트위치
+1set (1),118666,6133,Away Mistake Win,,,
+1set (2),131333,6400,Mistake Lose,Clear,Right,
+1set (3),145466,26866,Away Mistake Win,,,
+1set (4),185933,9000,Away Successful Lose,,,
+1set (5),210533,10733,Away Successful Lose,,,
+1set (6),235200,12133,Successful Win,,,2B;4A;5B
+1set (7),261600,3800,Away Mistake Win,,,
+1set (8),279200,5933,Successful Win,,,3B;4A;6B
+1set (9),297666,17200,Successful Win,,,3B;4A;5B
+1set (10),333066,6533,Successful Win,,,3B;1A;2B
+1set (11),353800,6866,Away Successful Lose,,,
+1set (12),383933,18733,Away Mistake Win,,,
+1set (13),419466,6066,Mistake Lose,Smash,Right,
+1set (14),442933,19266,Successful Win,,,4B;3A;5B
+1set (15),480466,10133,Successful Win,,,2B;3A;6B
+1set (16),534266,11733,Away Successful Lose,,,
+1set (17),562466,10266,Away Successful Lose,,,
+1set (18),590333,8000,Successful Win,,,1A;3B
+1set (19),675433,3800,Away Successful Lose,,,
+1set (20),691700,5333,Successful Win,,,8B;7A;2B
+1set (21),710433,11400,Mistake Lose,Smash,Right,
+1set (22),737300,7333,Away Mistake Win,,,
+1set (23),759966,22133,Away Mistake Win,,,
+1set (24),799833,4400,Away Mistake Win,,,
+1set (25),817966,8933,Away Successful Lose,,,
+1set (26),846566,4066,Successful Win,,,8B;1A;4B
+1set (27),866300,7000,Away Successful Lose,,,
+1set (28),887833,8200,Mistake Lose,Clear,Right,
+1set (29),912300,6200,Away Successful Lose,,,
+1set (30),934300,14333,Successful Win,,,3B;4A;5B
+1set (31),978233,8200,Away Successful Lose,,,
+1set (32),1000833,23200,Away Successful Lose,,,
+1set (33),1048300,5866,Mistake Lose,숏서브 리시브,Left,
+1set (34),1069900,22733,Successful Win,,,1A;2B
+1set (35),1133033,11333,Away Successful Lose,,,
+1set (36),1166233,8533,Away Successful Lose,,,
+1set (37),1194166,10200,Away Successful Lose,,,
+1set (38),1224633,12333,Successful Win,,,4B;3A;5B
+1set (39),1274300,9000,Away Mistake Win,,,
+1set (40),1302233,19733,Successful Win,,,2B;2A;3B
+2set (1),1442433,9733,Successful Win,,,6B;1A;3B
+2set (2),1476500,11666,Successful Win,,,2B;3A;5B
+2set (3),1505166,5200,Successful Win,,,4A;1B
+2set (4),1528433,8200,Mistake Lose,Clear,Left,
+2set (5),1551766,3733,Away Mistake Win,,,
+2set (6),1595500,8333,Mistake Lose,Smash,Right,
+2set (7),1618433,16800,Away Successful Lose,,,
+2set (8),1650633,12200,Away Mistake Win,,,
+2set (9),1678233,12600,Successful Win,,,3B;4A;6B
+2set (10),1716300,10133,Away Mistake Win,,,
+2set (11),1753900,13933,Mistake Lose,Drop,Left,
+2set (12),1786100,13466,Away Successful Lose,,,
+2set (13),1816500,16600,Successful Win,,,2B;3A;8B
+2set (14),1854833,8800,Away Mistake Win,,,
+2set (15),1877900,10400,Away Successful Lose,,,
+2set (16),1911766,14733,Mistake Lose,Hairpin,Right,
+2set (17),1945100,9066,Mistake Lose,Smash,Left,
+2set (18),1972500,6066,Away Mistake Win,,,
+2set (19),2052666,8533,Away Successful Lose,,,
+2set (20),2073933,16866,Away Successful Lose,,,
+2set (21),2181133,11533,Away Mistake Win,,,
+2set (22),2205200,16266,Mistake Lose,ETC,Left,
+2set (23),2238266,23666,Away Successful Lose,,,
+2set (24),2297733,16333,Mistake Lose,Return,Left,
+2set (25),2332400,9733,Successful Win,,,3B;4A;6B
+2set (26),2386000,7533,Away Mistake Win,,,
+2set (27),2438933,15933,Away Successful Lose,,,
+2set (28),2489200,8533,Away Successful Lose,,,
+2set (29),2512000,14266,Mistake Lose,Clear,Left,
+2set (30),2538800,25733,Mistake Lose,Smash,Left,
+2set (31),2595000,4466,Mistake Lose,숏서브 리시브,Right,
+2set (32),2612400,8333,Away Mistake Win,,,
+2set (33),2639600,13466,Away Successful Lose,,,
+2set (34),2675533,9733,Away Mistake Win,,,
+2set (35),2705533,21400,Successful Win,,,3B;4A;5B
+2set (36),2784133,15000,Mistake Lose,Return,Right,
+2set (37),2822133,7933,Away Successful Lose,,,
+2set (38),2849933,10466,Away Successful Lose,,,
+3set (1),2989266,12066,Successful Win,,,3B;5A;2B
+3set (2),3039466,3466,Away Mistake Win,,,
+3set (3),3055000,6600,Mistake Lose,Hairpin,Right,
+3set (4),3075466,7800,Successful Win,,,2B;3A;6B
+3set (5),3098066,4800,Successful Win,,,2B;1A;3B
+3set (6),3117466,4733,Mistake Lose,Drop,Left,
+3set (7),3137800,16333,Successful Win,,,3B;4A;6B
+3set (8),3174133,11333,Successful Win,,,3B;2A;2B
+3set (9),3209266,4266,Away Mistake Win,,,
+3set (10),3228600,4466,Successful Win,,,2B;4A;6B
+3set (11),3249200,7066,Mistake Lose,Clear,Right,
+3set (12),3279733,40200,Successful Win,,,1B;2A;4B
+3set (13),3363366,13933,Away Successful Lose,,,
+3set (14),3399300,11400,Away Successful Lose,,,
+3set (15),3426700,23333,Away Successful Lose,,,
+3set (16),3472633,8000,Away Successful Lose,,,
+3set (17),3497233,10800,Away Successful Lose,,,
+3set (18),3524033,13600,Successful Win,,,4B;3A;1B
+3set (19),3568366,10000,Successful Win,,,3B;4A;6B
+3set (20),3656166,9466,Successful Win,,,5B;1A;4B
+3set (21),3694366,5733,Successful Win,,,3B;4A;8B
+3set (22),3718833,18066,Away Successful Lose,,,
+3set (23),3760366,12333,Mistake Lose,Smash,Left,
+3set (24),3791300,23966,Successful Win,,,3B;3A;2B
+3set (25),3843833,7533,Successful Win,,,2B;3A;5B
+3set (26),3914166,6533,Mistake Lose,ETC,Left,
+3set (27),3933233,10933,Away Mistake Win,,,
+3set (28),3964233,14733,Away Successful Lose,,,
+3set (29),4009500,17133,Away Successful Lose,,,
+3set (30),4051800,11200,Mistake Lose,Smash,Right,
+3set (31),4088866,10333,Away Successful Lose,,,
+3set (32),4122600,4600,Successful Win,,,8B;1A;4B
+3set (33),4196300,5333,Mistake Lose,Hairpin,Right,
+3set (34),4213366,8533,Away Successful Lose,,,
+3set (35),4238200,17933,Successful Win,,,1A;2B
+3set (36),4279566,30933,Mistake Lose,Drop,Right,
+3set (37),4347900,7466,Mistake Lose,숏서브 리시브,Right,
+3set (38),4370533,18133,Successful Win,,,1A;2B
+3set (39),4416466,5866,Successful Win,,,2B;1A;3B
+3set (40),4444766,9866,Away Successful Lose,,,
+3set (41),4487266,12533,Away Successful Lose,,,
+3set (42),4519666,34666,Away Successful Lose,,,`;
+const NAME_A="이다희";
+const NAME_B="김민선";
+const COL_A='#0891b2', COL_B='#ea580c';
+
+const ZONE_GROUP={};
+[1,7,2].forEach(z=>ZONE_GROUP[z]='앞');
+[5,8,6].forEach(z=>ZONE_GROUP[z]='사이드');
+[3,9,4].forEach(z=>ZONE_GROUP[z]='뒤');
+const GCOLOR={'앞':{bg:'#dbeafe',tx:'#1d4ed8'},'사이드':{bg:'#fef3c7',tx:'#b45309'},'뒤':{bg:'#fce7f3',tx:'#be185d'}};
+
+function pcsv(t){
+  const lines=t.trim().split('\n').filter(Boolean);
+  const delim=lines[0].includes(';')?';':',';
+  const h=lines[0].split(delim).map(x=>x.trim().replace(/^\uFEFF/,'').replace(/\r/g,''));
+  return lines.slice(1).map(s=>{
+    const v=s.split(delim).map(x=>x.trim().replace(/\r/g,''));
+    const o={};h.forEach((k,i)=>o[k]=v[i]||'');
+    const m=o['이름']?.match(/(\d+set)/);if(m)o['set']=m[1];
+    if(o.Result==='Away Mistake Win')o.Result='Away Mistakes Win';
+    o.sec=parseFloat(o['기간']||0)/1000;
+    return o;
+  });
+}
+const W=r=>r.Result?.toLowerCase().includes('win');
+const L=r=>r.Result?.toLowerCase().includes('lose');
+const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:0;
+
+function fixPattern(p){
+  const s=p.split(';').map(x=>x.trim()).filter(Boolean);
+  return s.length===2?[s[1],s[0],s[1]]:s;
+}
+function groupPatterns(rows){
+  const sw=rows.filter(r=>r.Result==='Successful Win'&&r['패턴코트위치']?.trim());
+  const c={};
+  sw.forEach(r=>{
+    const g=fixPattern(r['패턴코트위치'].trim()).map(z=>{
+      const m=z.match(/(\d+)([AB])/);return m?ZONE_GROUP[parseInt(m[1])]||'?':'?';
+    }).join(' ');
+    c[g]=(c[g]||0)+1;
+  });
+  return {sorted:Object.entries(c).sort((a,b)=>b[1]-a[1]),total:sw.length};
+}
+
+// 랠리 시간 흐름 라인차트 (SVG)
+function timeChart(rowsA, rowsB){
+  const W_=860, H_=200, pad={l:34,r:10,t:12,b:24};
+  const maxN=Math.max(rowsA.length, rowsB.length);
+  const maxSec=Math.max(...rowsA.map(r=>r.sec), ...rowsB.map(r=>r.sec), 10);
+  const xs=n=>pad.l+(n/(maxN-1))*(W_-pad.l-pad.r);
+  const ys=s=>H_-pad.b-(s/maxSec)*(H_-pad.t-pad.b);
+  function path(rows,col){
+    const d=rows.map((r,i)=>`${i===0?'M':'L'}${xs(i).toFixed(1)},${ys(r.sec).toFixed(1)}`).join(' ');
+    return`<path d="${d}" fill="none" stroke="${col}" stroke-width="1.6" opacity="0.85"/>`;
+  }
+  // 평균선
+  const avgA=avg(rowsA.map(r=>r.sec)), avgB=avg(rowsB.map(r=>r.sec));
+  let grid='';
+  for(let i=0;i<=4;i++){
+    const v=maxSec*i/4, y=ys(v);
+    grid+=`<line x1="${pad.l}" y1="${y.toFixed(1)}" x2="${W_-pad.r}" y2="${y.toFixed(1)}" stroke="#e2e8f0" stroke-width="1"/>`;
+    grid+=`<text x="${pad.l-5}" y="${(y+3).toFixed(1)}" text-anchor="end" font-size="9" fill="#94a3b8" font-family="inherit">${Math.round(v)}s</text>`;
+  }
+  return`<svg viewBox="0 0 ${W_} ${H_}" style="width:100%;height:200px;display:block">
+    ${grid}
+    <line x1="${pad.l}" y1="${ys(avgA).toFixed(1)}" x2="${W_-pad.r}" y2="${ys(avgA).toFixed(1)}" stroke="${COL_A}" stroke-width="1" stroke-dasharray="4,3" opacity="0.6"/>
+    <line x1="${pad.l}" y1="${ys(avgB).toFixed(1)}" x2="${W_-pad.r}" y2="${ys(avgB).toFixed(1)}" stroke="${COL_B}" stroke-width="1" stroke-dasharray="4,3" opacity="0.6"/>
+    ${path(rowsA,COL_A)}
+    ${path(rowsB,COL_B)}
+    <text x="${pad.l}" y="${H_-6}" font-size="9" fill="#94a3b8" font-family="inherit">랠리 순서 →</text>
+  </svg>`;
+}
+
+// 랠리 타일 (시간+스코어)
+function tiles(rows){
+  const SC={'1set':'#3b82f6','2set':'#7c3aed','3set':'#f59e0b'};
+  let h=0,a=0,ps='';
+  return rows.map(r=>{
+    const sn=r.set||'';
+    if(ps&&sn!==ps){h=0;a=0;} ps=sn;
+    if(W(r))h++;else if(L(r))a++;
+    const bg=W(r)?'#dbeafe':'#fee2e2';
+    const tc=W(r)?'#1d4ed8':'#b91c1c';
+    return`<div class="tile" style="background:${bg}">
+      <div class="tset" style="background:${SC[sn]||'#64748b'}"></div>
+      <div class="tsec" style="color:${tc}">${r.sec.toFixed(0)}s</div>
+      <div class="tscore">${h}-${a}</div>
+    </div>`;
+  }).join('');
+}
+
+function render(){
+  const A=pcsv(CSV_A), B=pcsv(CSV_B);
+  const secA=A.map(r=>r.sec), secB=B.map(r=>r.sec);
+  const wA=A.filter(W).map(r=>r.sec), lA=A.filter(L).map(r=>r.sec);
+  const wB=B.filter(W).map(r=>r.sec), lB=B.filter(L).map(r=>r.sec);
+
+  const kpi=(label,a,b,suf='초')=>`<div class="kpi">
+    <div class="kl">${label}</div>
+    <div class="kvs"><span class="kv1">${a}${suf}</span><span class="karr">→</span><span class="kv2">${b}${suf}</span></div>
+  </div>`;
+
+  const kpis=`<div class="kpis">
+    ${kpi('총 랠리', A.length, B.length, '개')}
+    ${kpi('평균 랠리', avg(secA).toFixed(1), avg(secB).toFixed(1))}
+    ${kpi('득점 랠리', avg(wA).toFixed(1), avg(wB).toFixed(1))}
+    ${kpi('실점 랠리', avg(lA).toFixed(1), avg(lB).toFixed(1))}
+    ${kpi('최장 랠리', Math.round(Math.max(...secA)), Math.round(Math.max(...secB)))}
+  </div>`;
+
+  function patBlock(rows, col){
+    const {sorted,total}=groupPatterns(rows);
+    const mx=sorted.length?sorted[0][1]:1;
+    return sorted.slice(0,5).map(([gp,c],i)=>{
+      const pct=Math.round(c/total*100);
+      const seq=gp.split(' ').map((g,j)=>{
+        const gc=GCOLOR[g]||{bg:'#f1f5f9',tx:'#475569'};
+        return`${j>0?'<span class="gp-arrow">→</span>':''}<span class="gp-tag" style="background:${gc.bg};color:${gc.tx}">${g}</span>`;
+      }).join('');
+      return`<div class="gp-row">
+        <div class="gp-rank" style="background:${i===0?col:'#94a3b8'}">${i+1}</div>
+        <div class="gp-seq">${seq}</div>
+        <div class="gp-bar"><div class="gp-fill" style="width:${Math.round(c/mx*100)}%;background:${col}"></div></div>
+        <div class="gp-pct" style="color:${col}">${pct}%</div>
+      </div>`;
+    }).join('');
+  }
+
+  document.getElementById('app').innerHTML=`
+    <div class="card">
+      <div class="ct">📊 핵심 지표 (vs ${NAME_A} → vs ${NAME_B})</div>
+      ${kpis}
+    </div>
+
+    <div class="card">
+      <div class="ct">📈 랠리 시간 흐름</div>
+      ${timeChart(A,B)}
+      <div class="legend">
+        <div class="lg"><span class="lgd" style="background:${COL_A}"></span>vs ${NAME_A} (평균 ${avg(secA).toFixed(1)}초)</div>
+        <div class="lg"><span class="lgd" style="background:${COL_B}"></span>vs ${NAME_B} (평균 ${avg(secB).toFixed(1)}초)</div>
+        <div class="lg" style="color:#94a3b8">점선 = 각 경기 평균</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🎯 득점 루트 (앞·사이드·뒤)</div>
+      <div class="two">
+        <div>
+          <div class="mh" style="background:${COL_A}1a;color:${COL_A}">vs ${NAME_A}</div>
+          ${patBlock(A,COL_A)}
+        </div>
+        <div>
+          <div class="mh" style="background:${COL_B}1a;color:${COL_B}">vs ${NAME_B}</div>
+          ${patBlock(B,COL_B)}
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🔢 랠리별 시간 · 스코어 — vs ${NAME_A}</div>
+      <div class="tiles">${tiles(A)}</div>
+    </div>
+
+    <div class="card">
+      <div class="ct">🔢 랠리별 시간 · 스코어 — vs ${NAME_B}</div>
+      <div class="tiles">${tiles(B)}</div>
+      <div class="legend">
+        <div class="lg"><span class="lgd" style="background:#dbeafe;border:1px solid #1d4ed8"></span>득점</div>
+        <div class="lg"><span class="lgd" style="background:#fee2e2;border:1px solid #b91c1c"></span>실점</div>
+        <div class="lg"><span class="lgd" style="background:#3b82f6"></span>1set</div>
+        <div class="lg"><span class="lgd" style="background:#7c3aed"></span>2set</div>
+        <div class="lg"><span class="lgd" style="background:#f59e0b"></span>3set</div>
+      </div>
+    </div>`;
+}
+render();
+</script>
+</body>
+</html>
