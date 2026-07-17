@@ -161,8 +161,28 @@ function render(){
     </div>`;
   }).join('');
 
+  // 경기 결과 4가지
+  const RM={'Successful Win':['성공 득점','#1d4ed8'],'Away Mistakes Win':['상대실수 득점','#60a5fa'],'Away Successful Lose':['상대성공 실점','#b91c1c'],'Mistake Lose':['본인실수 실점','#f87171']};
+  const resCount={};
+  data.forEach(r=>{if(RM[r.Result])resCount[r.Result]=(resCount[r.Result]||0)+1;});
+  const resTotal=Object.values(resCount).reduce((a,b)=>a+b,0)||1;
+  const resMax=Math.max(...Object.values(resCount),1);
+  const resHTML=Object.entries(resCount).sort((a,b)=>b[1]-a[1]).map(([k,c])=>{
+    const [label,color]=RM[k];
+    const pct=Math.round(c/resTotal*100);
+    return`<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px">
+      <div style="flex-shrink:0;width:90px;font-size:11px;font-weight:900;color:${color}">${label}</div>
+      <div style="flex:1;height:14px;background:#f1f5f9;border-radius:4px;overflow:hidden"><div style="height:100%;width:${Math.round(c/resMax*100)}%;background:${color};border-radius:4px"></div></div>
+      <div style="flex-shrink:0;width:36px;text-align:right;font-size:13px;font-weight:900;color:${color}">${pct}%</div>
+    </div>`;
+  }).join('');
+
   document.getElementById('db1').innerHTML=`
     <div class="s" style="padding:8px">${FULL_COURT(lz,wz)}</div>
+    <div class="s">
+      <div class="stl">📊 경기 결과</div>
+      ${resHTML}
+    </div>
     <div class="s">
       <div class="stl">⏱ 랠리 길이별 득·실점 비율</div>
       ${segHTML}
