@@ -36,8 +36,7 @@
     <div class="sub">🏸 <span id="io1">단식</span> · 코트 위치 분석</div>
     <div class="name" id="ip1">심유진</div>
     <div class="info">vs <span id="ip2">천위페이</span> · <span id="id1">Japan Open 2026 8강</span></div>
-    <div class="badges" id="ds1"></div>
-  </div>
+    </div>
   <div class="kpi" id="dk1"></div>
   <div class="body" id="db1"></div>
   <div class="bot"></div>
@@ -124,15 +123,6 @@ function render(){
   const wins=data.filter(W), loses=data.filter(L);
   const sets=[...new Set(data.map(r=>r['이름']).filter(Boolean))].sort();
 
-  // 배지
-  [document.getElementById('ds1')].forEach(el=>{
-    el.innerHTML=sets.map(s=>{
-      const sr=data.filter(r=>r['이름']===s);
-      const sw=sr.filter(W).length,sl=sr.filter(L).length;
-      return`<div class="bg ${sw>sl?'bg-w':'bg-l'}">${s} ${sw}-${sl}</div>`;
-    }).join('');
-  });
-
   // KPI
   const avgW=wins.length?wins.reduce((s,r)=>s+r.sec,0)/wins.length:0;
   const avgL=loses.length?loses.reduce((s,r)=>s+r.sec,0)/loses.length:0;
@@ -180,7 +170,8 @@ function render(){
         <span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:#1d4ed8;border-radius:2px"></span>득점</span>
         <span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:#b91c1c;border-radius:2px"></span>실점</span>
       </div>
-    </div>`;
+    </div>
+    <div style="text-align:center;font-size:15px;font-weight:900;color:#b91c1c;padding:6px 0">고생했어요! 💪</div>`;
 
   // 페이지2: 랠리 시간
   // 요약
