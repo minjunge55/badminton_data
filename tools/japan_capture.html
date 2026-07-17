@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:#fff}
+  .card{width:390px;min-height:844px;background:#fff;display:flex;flex-direction:column;overflow:visible}
+  .hdr{background:#eff6ff;padding:10px 14px 8px;border-bottom:1px solid #bfdbfe}
+  .sub{font-size:7px;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:2px}
+  .name{font-size:24px;font-weight:900;color:#1e3a5f;line-height:1.1}
+  .info{font-size:11px;color:#64748b;margin-top:3px}
+  .badges{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+  .bg{font-size:10px;font-weight:800;padding:3px 9px;border-radius:20px}
+  .bg-w{background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8}
+  .bg-l{background:#fef2f2;border:1px solid #fecaca;color:#b91c1c}
+  .kpi{display:flex;gap:6px;padding:9px 12px;background:#f8fafc;border-bottom:1px solid #e2e8f0}
+  .kc{flex:1;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:6px 4px;text-align:center}
+  .kl{font-size:8px;color:#64748b;font-weight:800;margin-bottom:2px}
+  .kv{font-size:18px;font-weight:900;line-height:1}
+  .body{flex:1;padding:10px 12px;display:flex;flex-direction:column;gap:10px}
+  .s{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px 11px}
+  .stl{font-size:10px;font-weight:900;color:#475569;letter-spacing:.5px;margin-bottom:8px}
+  .bot{height:8px;background:linear-gradient(90deg,#1d4ed8,#7c3aed);flex-shrink:0}
+  .tiles{display:flex;flex-wrap:wrap;gap:2px}
+  .tile{width:28px;border-radius:4px;overflow:hidden}
+  .tset{height:3px}
+  .tin{padding:2px 1px 3px;text-align:center}
+  .tsec{font-size:9px;font-weight:900;line-height:1.1}
+  .tscore{font-size:6px;font-weight:800;background:rgba(0,0,0,.07);border-radius:2px;display:block;color:#334155}
+</style>
+</head>
+<body>
+<div class="card" id="card1">
+  <div class="hdr">
+    <div class="sub">🏸 <span id="io1">단식</span> · 코트 위치 분석</div>
+    <div class="name" id="ip1">심유진</div>
+    <div class="info">vs <span id="ip2">천위페이</span> · <span id="id1">Japan Open 2026 8강</span></div>
+    <div class="badges" id="ds1"></div>
+  </div>
+  <div class="kpi" id="dk1"></div>
+  <div class="body" id="db1"></div>
+  <div class="bot"></div>
+</div>
+
+<div class="card" id="card2">
+  <div class="hdr">
+    <div class="sub">🏸 단식 · 랠리 시간 분석</div>
+    <div class="name" id="ip1b">심유진</div>
+    <div class="info">vs <span id="ip2b">천위페이</span> · <span id="id2">Japan Open 2026 8강</span></div>
+  </div>
+  <div class="body" id="db2"></div>
+  <div class="bot"></div>
+</div>
+
+<script>
+const CSV=`PLACEHOLDER`;
+const W=r=>r.Result?.toLowerCase().includes('win');
+const L=r=>r.Result?.toLowerCase().includes('lose');
+const ROWS=[[2,7,1],[6,8,5],[4,9,3]];
+
+function pcsv(t){
+  const lines=t.trim().split('\n').filter(Boolean);
+  const delim=lines[0].includes(';')?';':',';
+  const h=lines[0].split(delim).map(x=>x.trim().replace(/^\uFEFF/,'').replace(/\r/g,''));
+  return lines.slice(1).map(s=>{
+    const v=s.split(delim).map(x=>x.trim().replace(/\r/g,''));
+    const o={};h.forEach((k,i)=>o[k]=v[i]||'');
+    const m=o['이름']?.match(/(\d+set)/);if(m)o['이름']=m[1];
+    if(o.Result==='Away Mistake Win')o.Result='Away Mistakes Win';
+    o.sec=parseFloat(o['기간']||0)/1000;
+    o.zone=parseInt(o['Last ball']||0)||null;
+    return o;
+  }).filter(r=>r.Result);
+}
+
+function winCol(r){if(!r)return{bg:'#e2e8f0',tx:'#64748b'};if(r<.25)return{bg:'#bfdbfe',tx:'#1e3a8a'};if(r<.5)return{bg:'#3b82f6',tx:'#fff'};if(r<.75)return{bg:'#1d4ed8',tx:'#fff'};return{bg:'#1e3a8a',tx:'#fff'};}
+function loseCol(r){if(!r)return{bg:'#e2e8f0',tx:'#64748b'};if(r<.25)return{bg:'#fef08a',tx:'#92400e'};if(r<.5)return{bg:'#fb923c',tx:'#fff'};if(r<.75)return{bg:'#dc2626',tx:'#fff'};return{bg:'#7f1d1d',tx:'#fff'};}
+
+function FULL_COURT(loseZ, winZ){
+  const W=370,H=320,gap=8,labelH=24,netH=18,bottomH=16;
+  const cW=(W-gap)/2,cH=H-labelH-netH-bottomH;
+  const cellW=cW/3,cellH=cH/3;
+  const lx=0,rx=cW+gap,courtY=labelH+netH;
+  function cells(zMap,colFn,ox){
+    const total=Object.values(zMap).reduce((a,b)=>a+b,0);
+    const mx=Math.max(...Object.values(zMap),1);
+    let h='';
+    ROWS.forEach((row,ri)=>row.forEach((zn,ci)=>{
+      const cnt=zMap[zn]||0,pct=total>0?Math.round(cnt/total*100):0;
+      const{bg,tx}=colFn(cnt/mx);
+      const x=ox+ci*cellW,y=courtY+ri*cellH,cx=x+cellW/2,cy=y+cellH/2;
+      h+=`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${cellW.toFixed(1)}" height="${cellH.toFixed(1)}" fill="${bg}"/>`;
+      const nFill=bg==='#e2e8f0'?'#94a3b8':(bg==='#fef08a'||bg==='#bfdbfe')?'rgba(0,0,0,0.5)':'rgba(255,255,255,0.7)';
+      if(pct>0){
+        h+=`<text x="${cx.toFixed(1)}" y="${(y+13).toFixed(1)}" text-anchor="middle" font-size="11" font-weight="900" fill="${nFill}" font-family="inherit">${zn}</text>`;
+        h+=`<text x="${cx.toFixed(1)}" y="${(cy+5).toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-size="18" font-weight="900" fill="${tx}" font-family="inherit">${pct}%</text>`;
+        h+=`<text x="${cx.toFixed(1)}" y="${(y+cellH-6).toFixed(1)}" text-anchor="middle" font-size="10" font-weight="800" fill="${tx}" font-family="inherit">${cnt}회</text>`;
+      }else{
+        h+=`<text x="${cx.toFixed(1)}" y="${cy.toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-size="14" font-weight="900" fill="${nFill}" font-family="inherit">${zn}</text>`;
+      }
+    }));
+    return h;
+  }
+  function lines(ox){
+    const x1=ox,x2=ox+cW,y1=courtY,y2=courtY+cH;
+    return[
+      `<rect x="${x1}" y="${y1}" width="${cW.toFixed(1)}" height="${cH.toFixed(1)}" fill="none" stroke="#1e293b" stroke-width="2" rx="2"/>`,
+      `<line x1="${(ox+cellW).toFixed(1)}" y1="${y1}" x2="${(ox+cellW).toFixed(1)}" y2="${y2}" stroke="#475569" stroke-width="1.2"/>`,
+      `<line x1="${(ox+cellW*2).toFixed(1)}" y1="${y1}" x2="${(ox+cellW*2).toFixed(1)}" y2="${y2}" stroke="#475569" stroke-width="1.2"/>`,
+      `<line x1="${x1}" y1="${(y1+cellH).toFixed(1)}" x2="${x2}" y2="${(y1+cellH).toFixed(1)}" stroke="#64748b" stroke-width="0.8" stroke-dasharray="5,3"/>`,
+      `<line x1="${x1}" y1="${(y1+cellH*2).toFixed(1)}" x2="${x2}" y2="${(y1+cellH*2).toFixed(1)}" stroke="#64748b" stroke-width="0.8" stroke-dasharray="5,3"/>`,
+      `<line x1="${(x1-4)}" y1="${y1}" x2="${(x2+4)}" y2="${y1}" stroke="#0f172a" stroke-width="5" stroke-linecap="round"/>`,
+      `<text x="${(ox+cW/2).toFixed(1)}" y="${(courtY-5)}" text-anchor="middle" font-size="9" font-weight="900" fill="#1e293b" font-family="inherit" letter-spacing="1">— NET —</text>`,
+    ].join('');
+  }
+  const awLbl=`<rect x="${lx}" y="1" width="${cW.toFixed(1)}" height="21" rx="4" fill="#dbeafe"/><text x="${(lx+cW/2).toFixed(1)}" y="14" text-anchor="middle" font-size="11" font-weight="900" fill="#1d4ed8" font-family="inherit">득점 존</text>`;
+  const hmLbl=`<rect x="${rx.toFixed(1)}" y="1" width="${cW.toFixed(1)}" height="21" rx="4" fill="#fee2e2"/><text x="${(rx+cW/2).toFixed(1)}" y="14" text-anchor="middle" font-size="11" font-weight="900" fill="#b91c1c" font-family="inherit">실점 존</text>`;
+  return `<svg width="100%" viewBox="0 0 ${W} ${H}" style="display:block">${awLbl}${hmLbl}${cells(winZ,winCol,lx)}${cells(loseZ,loseCol,rx)}${lines(lx)}${lines(rx)}</svg>`;
+}
+
+function render(){
+  const data=pcsv(CSV);
+  const wins=data.filter(W), loses=data.filter(L);
+  const sets=[...new Set(data.map(r=>r['이름']).filter(Boolean))].sort();
+
+  // 배지
+  [document.getElementById('ds1')].forEach(el=>{
+    el.innerHTML=sets.map(s=>{
+      const sr=data.filter(r=>r['이름']===s);
+      const sw=sr.filter(W).length,sl=sr.filter(L).length;
+      return`<div class="bg ${sw>sl?'bg-w':'bg-l'}">${s} ${sw}-${sl}</div>`;
+    }).join('');
+  });
+
+  // KPI
+  const avgW=wins.length?wins.reduce((s,r)=>s+r.sec,0)/wins.length:0;
+  const avgL=loses.length?loses.reduce((s,r)=>s+r.sec,0)/loses.length:0;
+  const total=wins.length+loses.length;
+  document.getElementById('dk1').innerHTML=[
+    {l:'득점',v:wins.length,c:'#1d4ed8'},
+    {l:'실점',v:loses.length,c:'#b91c1c'},
+    {l:'득점률',v:total?Math.round(wins.length/total*100)+'%':'-',c:'#334155'},
+    {l:'평균 랠리',v:(data.reduce((s,r)=>s+r.sec,0)/data.length).toFixed(1)+'초',c:'#7c3aed'},
+  ].map(k=>`<div class="kc"><div class="kl">${k.l}</div><div class="kv" style="color:${k.c}">${k.v}</div></div>`).join('');
+
+  // 코트 존
+  const wz={},lz={};
+  wins.forEach(r=>{if(r.zone)wz[r.zone]=(wz[r.zone]||0)+1;});
+  loses.forEach(r=>{if(r.zone)lz[r.zone]=(lz[r.zone]||0)+1;});
+
+  // 랠리 길이별 득실점
+  const segs=[
+    ['짧은 랠리','~7초',r=>r.sec<=7],
+    ['중간 랠리','7~15초',r=>r.sec>7&&r.sec<=15],
+    ['긴 랠리','15초+',r=>r.sec>15],
+  ];
+  const segHTML=segs.map(([name,range,fn])=>{
+    const g=data.filter(fn),gw=g.filter(W).length,gl=g.filter(L).length,t=gw+gl;
+    if(!t)return'';
+    const wPct=Math.round(gw/t*100),lPct=100-wPct;
+    return`<div style="margin-bottom:11px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
+        <span style="font-size:12px;font-weight:900;color:#1e293b">${name} <span style="font-size:9px;color:#94a3b8;font-weight:700">${range} · ${t}랠리</span></span>
+        <span style="font-size:13px;font-weight:900;color:${wPct>=50?'#1d4ed8':'#b91c1c'}">득점률 ${wPct}%</span>
+      </div>
+      <div style="display:flex;height:22px;border-radius:6px;overflow:hidden">
+        <div style="width:${wPct}%;background:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#fff">${gw>0?gw+'득':''}</div>
+        <div style="width:${lPct}%;background:#b91c1c;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#fff">${gl>0?gl+'실':''}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('db1').innerHTML=`
+    <div class="s" style="padding:8px">${FULL_COURT(lz,wz)}</div>
+    <div class="s">
+      <div class="stl">⏱ 랠리 길이별 득·실점 비율</div>
+      ${segHTML}
+      <div style="display:flex;gap:10px;font-size:9px;margin-top:2px">
+        <span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:#1d4ed8;border-radius:2px"></span>득점</span>
+        <span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:#b91c1c;border-radius:2px"></span>실점</span>
+      </div>
+    </div>`;
+
+  // 페이지2: 랠리 시간
+  // 요약
+  const allAvg=data.reduce((s,r)=>s+r.sec,0)/data.length;
+  document.getElementById('db2').innerHTML=`
+    <div class="s">
+      <div class="stl">⏱ 랠리 시간 요약</div>
+      <div style="display:flex;gap:8px">
+        <div style="flex:1;text-align:center;padding:8px;background:#fff;border:1px solid #e2e8f0;border-radius:8px">
+          <div style="font-size:9px;color:#64748b;font-weight:800">전체 평균</div>
+          <div style="font-size:20px;font-weight:900;color:#7c3aed">${allAvg.toFixed(1)}초</div>
+        </div>
+        <div style="flex:1;text-align:center;padding:8px;background:#fff;border:1px solid #e2e8f0;border-radius:8px">
+          <div style="font-size:9px;color:#64748b;font-weight:800">득점 평균</div>
+          <div style="font-size:20px;font-weight:900;color:#1d4ed8">${avgW.toFixed(1)}초</div>
+        </div>
+        <div style="flex:1;text-align:center;padding:8px;background:#fff;border:1px solid #e2e8f0;border-radius:8px">
+          <div style="font-size:9px;color:#64748b;font-weight:800">실점 평균</div>
+          <div style="font-size:20px;font-weight:900;color:#b91c1c">${avgL.toFixed(1)}초</div>
+        </div>
+      </div>
+    </div>
+    <div class="s">
+      <div class="stl">🔢 랠리별 시간</div>
+      <div class="tiles">${tilesHTML(data)}</div>
+      <div style="display:flex;gap:10px;margin-top:8px;font-size:9px">
+        <span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:#dbeafe;border:1px solid #1d4ed8;border-radius:2px"></span>득점</span>
+        <span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:#fee2e2;border:1px solid #b91c1c;border-radius:2px"></span>실점</span>
+      </div>
+    </div>`;
+}
+
+function tilesHTML(data){
+  const SC={'1set':'#3b82f6','2set':'#7c3aed','3set':'#f59e0b'};
+  let ps='';
+  return data.map(r=>{
+    const sn=r['이름']||'';
+    const bg=W(r)?'#dbeafe':L(r)?'#fee2e2':'#f1f5f9';
+    const tc=W(r)?'#1d4ed8':L(r)?'#b91c1c':'#94a3b8';
+    return`<div class="tile" style="background:${bg}"><div class="tset" style="background:${SC[sn]||'#64748b'}"></div><div class="tin"><div class="tsec" style="color:${tc}">${r.sec.toFixed(0)}s</div></div></div>`;
+  }).join('');
+}
+render();
+</script>
+</body>
+</html>
