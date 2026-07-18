@@ -47,7 +47,7 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:#94a
 .bf{height:100%;border-radius:2px}
 .rr{display:flex;align-items:center;gap:4px;margin-bottom:3px}
 .rd{width:5px;height:5px;border-radius:1px;flex-shrink:0}
-.rl{font-size:8px;color:#334155;flex:1}
+.rl{font-size:8px;color:#334155;width:68px;flex-shrink:0}
 .rc{font-size:9px;font-weight:900;min-width:14px;text-align:right;margin-right:3px}
 .rt{height:3px;background:#f1f5f9;border-radius:2px;overflow:hidden;width:52px}
 .rf{height:100%;border-radius:2px}
@@ -404,12 +404,23 @@ function renderCard(key, c1idx, c2idx){
   if(te.length===0)hA+=`<div style="color:#94a3b8;font-size:10px;text-align:center;padding:6px 0">기록 없음</div>`;
   else te.forEach(([t,c],i)=>{const pct=Math.round(c/myT*100),col=RED[Math.min(i,RED.length-1)];hA+=`<div class="br"><div class="bh"><span class="bn">${t}</span><div class="bm"><span class="bp">${pct}%</span><span class="bc" style="color:${col}">${c}회</span></div></div><div class="bt"><div class="bf" style="width:${c/tmx*100}%;background:${col}"></div></div></div>`;});
   hA+=`</div>`;
-  hA+=`<div class="s" style="background:#f8fafc;border:1px solid #e2e8f0"><div class="stl" style="color:#334155">경기 결과</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 10px">`;
-  re.forEach(([k,v])=>{const m=RM[k];hA+=`<div class="rr"><div class="rd" style="background:${m?.c}"></div><span class="rl">${m?.l||k}</span><span class="rc" style="color:${m?.c}">${v}</span><div class="rt" style="width:40px"><div class="rf" style="width:${v/rmx*100}%;background:${m?.c}"></div></div></div>`;});
-  hA+=`</div></div>`;
+  hA+=`<div class="s" style="background:#f8fafc;border:1px solid #e2e8f0"><div class="stl" style="color:#334155">경기 결과</div>`;
+  const rTotal=re.reduce((s,[,v])=>s+v,0)||1;
+  re.forEach(([k,v])=>{const m=RM[k];const pct=Math.round(v/rTotal*100);hA+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px"><div style="flex-shrink:0;width:90px;font-size:11px;font-weight:900;color:${m?.c}">${m?.l||k}</div><div style="flex:1;height:14px;background:#f1f5f9;border-radius:4px;overflow:hidden"><div style="height:100%;width:${Math.round(v/rmx*100)}%;background:${m?.c};border-radius:4px"></div></div><div style="flex-shrink:0;width:36px;text-align:right;font-size:13px;font-weight:900;color:${m?.c}">${pct}%</div></div>`;});
+  hA+=`</div>`;
+  // 랠리 길이별 득실점 비율
+  const segs=[['짧은 랠리','~7초',r=>parseFloat(r['기간']||0)/1000<=7],['중간 랠리','7~15초',r=>{const s=parseFloat(r['기간']||0)/1000;return s>7&&s<=15;}],['긴 랠리','15초+',r=>parseFloat(r['기간']||0)/1000>15]];
+  hA+=`<div class="s" style="background:#f8fafc;border:1px solid #e2e8f0"><div class="stl" style="color:#334155">⏱ 랠리 길이별 득·실점 비율</div>`;
+  segs.forEach(([name,range,fn])=>{
+    const g=wr.filter(fn),gw=g.filter(r=>W(r.Result)).length,gl=g.filter(r=>L(r.Result)).length,t=gw+gl;
+    if(!t)return;
+    const wPct=Math.round(gw/t*100),lPct=100-wPct;
+    hA+=`<div style="margin-bottom:11px"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px"><span style="font-size:12px;font-weight:900;color:#1e293b">${name} <span style="font-size:9px;color:#94a3b8;font-weight:700">${range} · ${t}랠리</span></span><span style="font-size:13px;font-weight:900;color:${wPct>=50?'#1d4ed8':'#b91c1c'}">득점률 ${wPct}%</span></div><div style="display:flex;height:22px;border-radius:6px;overflow:hidden"><div style="width:${wPct}%;background:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#fff">${gw>0?gw+'득':''}</div><div style="width:${lPct}%;background:#b91c1c;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#fff">${gl>0?gl+'실':''}</div></div></div>`;
+  });
+  hA+=`<div style="display:flex;gap:10px;font-size:9px"><span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:#1d4ed8;border-radius:2px"></span>득점</span><span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:#b91c1c;border-radius:2px"></span>실점</span></div></div>`;
+  const matchWin = wins > loses;
+  if(!matchWin) hA+=`<div style="text-align:center;padding:12px 0 4px;font-size:15px;font-weight:900;color:#b91c1c;letter-spacing:1px">고생했어요! 💪</div>`;
   document.getElementById('db'+c1idx).innerHTML=hA;
-
-  // ── 카드B: 랠리 시간 타일 ────────────────────────────────────
   const RBG=res=>W(res)?'#dbeafe':L(res)?'#fee2e2':'#f1f5f9';
   const RTC=res=>W(res)?'#1d4ed8':L(res)?'#b91c1c':'#64748b';
 
