@@ -366,7 +366,7 @@ function renderCard(key, c1idx, c2idx){
   const sets=[...new Set(AD.map(r=>r['이름']).filter(Boolean))].sort();
   const ss=sets.map(s=>{const rows=AD.filter(r=>r['이름']===s);return{s,w:rows.filter(r=>W(r.Result)).length,l:rows.filter(r=>L(r.Result)).length};});
   const badgeHTML=ss.map(x=>{const win=x.w>x.l;return`<div class="bg" style="background:${win?'#eff6ff':'#fef2f2'};border:1px solid ${win?'#bfdbfe':'#fecaca'};color:${win?'#1d4ed8':'#b91c1c'}">${x.s} ${x.w}-${x.l}</div>`;}).join('');
-  const kpiHTML=[{l:'팀 득점',v:wins,c:'#1d4ed8',bg:'#eff6ff'},{l:'팀 실점',v:loses,c:'#b91c1c',bg:'#fef2f2'},{l:'득점률',v:rate+'%',c:'#1e3a5f',bg:'#eff6ff'},{l:'본인 실수',v:data.filter(r=>r['실수 기술']&&r['Player']===key).length,c:'#1d4ed8',bg:'#eff6ff'}].map(k=>`<div class="kc" style="background:${k.bg}"><div class="kl" style="color:${k.c}">${k.l}</div><div class="kv" style="color:${k.c}">${k.v}</div></div>`).join('');
+  const kpiHTML=[{l:'팀 득점',v:wins,c:'#1d4ed8',bg:'#eff6ff'},{l:'팀 실점',v:loses,c:'#b91c1c',bg:'#fef2f2'},{l:'득점률',v:rate+'%',c:'#1e3a5f',bg:'#eff6ff'},{l:'실수',v:data.filter(r=>r['실수 기술']&&r['Player']===key).length,c:'#1d4ed8',bg:'#eff6ff'}].map(k=>`<div class="kc" style="background:${k.bg}"><div class="kl" style="color:${k.c}">${k.l}</div><div class="kv" style="color:${k.c}">${k.v}</div></div>`).join('');
 
   [c1idx, c2idx].forEach(idx=>{
     document.getElementById('dp'+idx).textContent=pn;
@@ -400,7 +400,7 @@ function renderCard(key, c1idx, c2idx){
   hA+=`<div><div style="font-size:8px;font-weight:900;color:#b91c1c;margin-bottom:4px;display:flex;align-items:center;gap:5px"><span style="width:2px;height:13px;background:#b91c1c;border-radius:2px;display:inline-block"></span>실점 유형 <span style="font-weight:400;color:#94a3b8;font-size:7px">총 ${tLc}회</span></div><div class="g4">`;
   LC_C.forEach((cat,i)=>{const cnt=lcM[cat]||0,pct=tLc>0?Math.round(cnt/tLc*100):0,c=RED[Math.min(i,2)];hA+=`<div class="cat" style="background:#fff;border:1px solid ${c}20;border-left-color:${c}"><div class="cl">${cat}</div><div class="cv" style="color:${c}">${cnt}<span style="font-size:8px;color:#94a3b8;font-weight:400">회</span></div><div class="ct" style="background:#f1f5f9"><div style="width:${pct}%;height:100%;background:${c};border-radius:2px"></div></div><div class="cp" style="color:${c}">${pct}%</div></div>`;});
   hA+=`</div></div>`;
-  hA+=`<div class="s" style="background:#eff6ff;border:1px solid #bfdbfe"><div class="stl" style="color:#1d4ed8">본인 실수 기술 — 총 ${myT}회</div>`;
+  hA+=`<div class="s" style="background:#eff6ff;border:1px solid #bfdbfe"><div class="stl" style="color:#1d4ed8">실수 기술 — 총 ${myT}회</div>`;
   if(te.length===0)hA+=`<div style="color:#94a3b8;font-size:10px;text-align:center;padding:6px 0">기록 없음</div>`;
   else te.forEach(([t,c],i)=>{const pct=Math.round(c/myT*100),col=RED[Math.min(i,RED.length-1)];hA+=`<div class="br"><div class="bh"><span class="bn">${t}</span><div class="bm"><span class="bp">${pct}%</span><span class="bc" style="color:${col}">${c}회</span></div></div><div class="bt"><div class="bf" style="width:${c/tmx*100}%;background:${col}"></div></div></div>`;});
   hA+=`</div>`;
@@ -419,7 +419,8 @@ function renderCard(key, c1idx, c2idx){
   });
   hA+=`<div style="display:flex;gap:10px;font-size:9px"><span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:#1d4ed8;border-radius:2px"></span>득점</span><span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:#b91c1c;border-radius:2px"></span>실점</span></div></div>`;
   const matchWin = wins > loses;
-  if(!matchWin) hA+=`<div style="text-align:center;padding:12px 0 4px;font-size:15px;font-weight:900;color:#b91c1c;letter-spacing:1px">고생했어요! 💪</div>`;
+  if(matchWin) hA+=`<div style="text-align:center;padding:12px 0 4px;font-size:15px;font-weight:900;color:#1d4ed8;letter-spacing:1px">수고했어요! 🏆</div>`;
+  else hA+=`<div style="text-align:center;padding:12px 0 4px;font-size:15px;font-weight:900;color:#b91c1c;letter-spacing:1px">고생했어요! 💪</div>`;
   document.getElementById('db'+c1idx).innerHTML=hA;
   const RBG=res=>W(res)?'#dbeafe':L(res)?'#fee2e2':'#f1f5f9';
   const RTC=res=>W(res)?'#1d4ed8':L(res)?'#b91c1c':'#64748b';
