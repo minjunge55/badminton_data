@@ -310,7 +310,7 @@ function ckclk(rows){
 const BLUE=['#1e3a5f','#1d4ed8','#2563eb','#60a5fa'];
 const RED=['#7f1d1d','#991b1b','#b91c1c','#dc2626','#ef4444','#f87171'];
 const SC_C=['공격','중간볼','초구','수비'],LC_C=['수비','중간볼','공격','초구'];
-const RM={'Away Mistakes Win':{c:'#1d4ed8',l:'상대실수 득점'},'Successful Win':{c:'#2563eb',l:'성공 득점'},'Away Successful Lose':{c:'#b91c1c',l:'상대성공 실점'},'Mistake Lose':{c:'#ef4444',l:'본인실수 실점'}};
+const RM={'Away Mistakes Win':{c:'#1d4ed8',l:'상대실수 득점'},'Successful Win':{c:'#2563eb',l:'성공 득점'},'Away Successful Lose':{c:'#b91c1c',l:'상대성공 실점'},'Mistake Lose':{c:'#ef4444',l:'실수 실점'}};
 const SETC={'1set':'#1d4ed8','2set':'#6d28d9','3set':'#b45309'};
 const CC=v=>v<=15?'#15803d':v<=22?'#b45309':'#b91c1c';
 const CB=v=>v<=15?'#dcfce7':v<=22?'#fef9c3':'#fee2e2';
@@ -419,7 +419,7 @@ function renderCard(key, c1idx, c2idx){
   });
   hA+=`<div style="display:flex;gap:10px;font-size:9px"><span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:#1d4ed8;border-radius:2px"></span>득점</span><span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:#b91c1c;border-radius:2px"></span>실점</span></div></div>`;
   const matchWin = wins > loses;
-  if(matchWin) hA+=`<div style="text-align:center;padding:12px 0 4px;font-size:15px;font-weight:900;color:#1d4ed8;letter-spacing:1px">수고했어요! 🏆</div>`;
+  if(matchWin) hA+=`<div style="text-align:center;padding:12px 0 4px;font-size:15px;font-weight:900;color:#1d4ed8;letter-spacing:1px">수고했어요! 👍🏻</div>`;
   else hA+=`<div style="text-align:center;padding:12px 0 4px;font-size:15px;font-weight:900;color:#b91c1c;letter-spacing:1px">고생했어요! 💪</div>`;
   document.getElementById('db'+c1idx).innerHTML=hA;
   const RBG=res=>W(res)?'#dbeafe':L(res)?'#fee2e2':'#f1f5f9';
