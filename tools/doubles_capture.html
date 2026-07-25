@@ -420,7 +420,7 @@ function renderCard(key, c1idx, c2idx){
   hA+=`<div style="display:flex;gap:10px;font-size:9px"><span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:#1d4ed8;border-radius:2px"></span>득점</span><span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:#b91c1c;border-radius:2px"></span>실점</span></div></div>`;
   const matchWin = wins > loses;
   if(matchWin) hA+=`<div style="text-align:center;padding:12px 0 4px;font-size:15px;font-weight:900;color:#1d4ed8;letter-spacing:1px">수고했어요! 👍🏻</div>`;
-  else hA+=`<div style="text-align:center;padding:12px 0 4px;font-size:15px;font-weight:900;color:#b91c1c;letter-spacing:1px">고생했어요! 💪</div>`;
+  else hA+=`<div style="text-align:center;padding:12px 0 4px;font-size:15px;font-weight:900;color:#1e293b;letter-spacing:1px">고생했어요! 💪</div>`;
   document.getElementById('db'+c1idx).innerHTML=hA;
   const RBG=res=>W(res)?'#dbeafe':L(res)?'#fee2e2':'#f1f5f9';
   const RTC=res=>W(res)?'#1d4ed8':L(res)?'#b91c1c':'#64748b';
